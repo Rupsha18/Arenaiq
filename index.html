@@ -190,6 +190,33 @@ svg.arena-map{width:100%;height:100%;}
   </div>
 </div>
 <script>
+  // Connect frontend to backend API
+async function fetchLiveData() {
+  try {
+    const [crowdRes, alertsRes, queuesRes] = await Promise.all([
+      fetch('/api/crowd'),
+      fetch('/api/alerts'),
+      fetch('/api/queues')
+    ]);
+    const crowd = await crowdRes.json();
+    const alerts = await alertsRes.json();
+    const queues = await queuesRes.json();
+
+    // Update crowd stats in your dashboard
+    crowd.data.forEach(zone => {
+      console.log(`${zone.stand}: ${zone.current}/${zone.capacity} (${zone.density})`);
+    });
+
+    console.log('Live alerts:', alerts.alerts.length);
+    console.log('Queue data loaded:', queues.queues.length, 'locations');
+  } catch (err) {
+    console.log('API fetch error:', err);
+  }
+}
+
+// Fetch on load and refresh every 30 seconds
+fetchLiveData();
+setInterval(fetchLiveData, 30000);
 const zones=[
   {name:'North Stand',cap:'18,400',pct:96,color:'#E8293C',status:'crit',label:'Critical'},
   {name:'South Stand',cap:'18,200',pct:61,color:'#00C9A7',status:'ok',label:'Clear'},
