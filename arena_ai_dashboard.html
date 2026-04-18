@@ -1,0 +1,683 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap');
+
+  :root {
+    --arena-orange: #FF5C1A;
+    --arena-gold: #F5A623;
+    --arena-teal: #00C9A7;
+    --arena-blue: #1A6FFF;
+    --arena-red: #E8293C;
+    --arena-bg: #0A0D14;
+    --arena-surface: #141820;
+    --arena-border: rgba(255,255,255,0.08);
+    --arena-text: #E8E6DF;
+    --arena-muted: #7A7870;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  .arena-root {
+    background: var(--arena-bg);
+    color: var(--arena-text);
+    font-family: 'Barlow', sans-serif;
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  .header {
+    background: var(--arena-surface);
+    border-bottom: 1px solid var(--arena-border);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 22px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--arena-orange);
+  }
+
+  .event-badge {
+    background: rgba(255,92,26,0.15);
+    border: 1px solid rgba(255,92,26,0.3);
+    color: var(--arena-orange);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    padding: 3px 10px;
+    border-radius: 4px;
+    text-transform: uppercase;
+  }
+
+  .live-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--arena-red);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .live-dot {
+    width: 8px; height: 8px;
+    background: var(--arena-red);
+    border-radius: 50%;
+    animation: pulse-red 1.2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-red {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 240px 1fr 220px;
+    grid-template-rows: auto auto;
+    gap: 1px;
+    background: var(--arena-border);
+    height: calc(100vh - 57px);
+    min-height: 600px;
+  }
+
+  .panel {
+    background: var(--arena-bg);
+    padding: 16px;
+    overflow: hidden;
+  }
+
+  .panel-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--arena-muted);
+    margin-bottom: 14px;
+  }
+
+  /* LEFT PANEL — Zones */
+  .zone-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .zone-item {
+    background: var(--arena-surface);
+    border: 1px solid var(--arena-border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .zone-item:hover { border-color: rgba(255,92,26,0.4); }
+  .zone-item.active { border-color: var(--arena-orange); }
+
+  .zone-item::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    border-radius: 8px 0 0 8px;
+    background: var(--zone-color, var(--arena-muted));
+  }
+
+  .zone-header { display: flex; justify-content: space-between; align-items: center; }
+  .zone-name { font-size: 13px; font-weight: 600; }
+  .zone-cap { font-size: 11px; color: var(--arena-muted); margin-top: 2px; }
+  
+  .zone-bar-track {
+    margin-top: 8px;
+    height: 4px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .zone-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: var(--zone-color);
+    transition: width 1s ease;
+  }
+
+  .status-pill {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 10px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .ok { background: rgba(0,201,167,0.15); color: var(--arena-teal); }
+  .warn { background: rgba(245,166,35,0.15); color: var(--arena-gold); }
+  .crit { background: rgba(232,41,60,0.15); color: var(--arena-red); }
+
+  /* CENTER — Map */
+  .map-panel {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    position: relative;
+  }
+
+  .map-container {
+    position: relative;
+    width: 100%;
+    height: calc(100% - 30px);
+  }
+
+  svg.arena-map {
+    width: 100%;
+    height: 100%;
+  }
+
+  .map-overlay {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 16px;
+    background: rgba(10,13,20,0.85);
+    border: 1px solid var(--arena-border);
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 11px;
+    color: var(--arena-muted);
+    white-space: nowrap;
+  }
+
+  .legend-item { display: flex; align-items: center; gap: 5px; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* RIGHT — Alerts & Stats */
+  .right-top { grid-column: 3; grid-row: 1; }
+  .right-bottom { grid-column: 3; grid-row: 2; }
+
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+  .stat-card {
+    background: var(--arena-surface);
+    border: 1px solid var(--arena-border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    text-align: center;
+  }
+
+  .stat-val {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--arena-text);
+  }
+
+  .stat-label {
+    font-size: 10px;
+    color: var(--arena-muted);
+    margin-top: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .stat-card.highlight { border-color: rgba(255,92,26,0.4); }
+  .stat-card.highlight .stat-val { color: var(--arena-orange); }
+
+  /* Alerts */
+  .alerts-list { display: flex; flex-direction: column; gap: 6px; max-height: 260px; overflow-y: auto; }
+  .alerts-list::-webkit-scrollbar { width: 3px; }
+  .alerts-list::-webkit-scrollbar-track { background: transparent; }
+  .alerts-list::-webkit-scrollbar-thumb { background: var(--arena-border); border-radius: 2px; }
+
+  .alert-item {
+    background: var(--arena-surface);
+    border: 1px solid var(--arena-border);
+    border-left: 3px solid var(--alert-color, var(--arena-muted));
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 12px;
+    animation: slide-in 0.3s ease;
+  }
+
+  @keyframes slide-in {
+    from { opacity: 0; transform: translateX(8px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .alert-meta { font-size: 10px; color: var(--arena-muted); margin-top: 3px; }
+
+  /* Wait times */
+  .wait-list { display: flex; flex-direction: column; gap: 6px; }
+
+  .wait-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+  }
+
+  .wait-name { flex: 1; color: var(--arena-muted); }
+
+  .wait-bar-bg {
+    width: 80px;
+    height: 6px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .wait-bar-inner {
+    height: 100%;
+    border-radius: 3px;
+    background: var(--w-color);
+    transition: width 1s ease;
+  }
+
+  .wait-mins {
+    font-size: 12px;
+    font-weight: 600;
+    min-width: 28px;
+    text-align: right;
+    color: var(--w-color);
+  }
+
+  /* Tabs */
+  .tab-row { display: flex; gap: 2px; margin-bottom: 14px; }
+
+  .tab-btn {
+    background: none;
+    border: none;
+    color: var(--arena-muted);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: color 0.2s, background 0.2s;
+  }
+
+  .tab-btn.active {
+    color: var(--arena-text);
+    background: var(--arena-surface);
+  }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* Announcement bar */
+  .announce {
+    grid-column: 1 / 4;
+    background: linear-gradient(90deg, rgba(255,92,26,0.12), transparent);
+    border-top: 1px solid rgba(255,92,26,0.2);
+    padding: 8px 20px;
+    font-size: 12px;
+    color: var(--arena-orange);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    overflow: hidden;
+  }
+
+  .announce-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    letter-spacing: 2px;
+    font-size: 11px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    padding-right: 12px;
+    border-right: 1px solid rgba(255,92,26,0.3);
+  }
+
+  .announce-ticker {
+    overflow: hidden;
+    flex: 1;
+    position: relative;
+    height: 18px;
+  }
+
+  .announce-msg {
+    position: absolute;
+    white-space: nowrap;
+    animation: ticker 18s linear infinite;
+    font-weight: 500;
+  }
+
+  @keyframes ticker {
+    0% { left: 100%; }
+    100% { left: -100%; }
+  }
+
+  /* Crowd flow arrows on SVG */
+  @keyframes flow-dash {
+    to { stroke-dashoffset: -30; }
+  }
+
+  .flow-path {
+    stroke-dasharray: 6 6;
+    animation: flow-dash 1.2s linear infinite;
+  }
+
+  @keyframes crowd-pulse {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+  }
+
+  .crowd-hot { animation: crowd-pulse 1.8s ease-in-out infinite; }
+
+</style>
+
+<div class="arena-root">
+
+  <div class="header">
+    <div class="header-left">
+      <div class="logo">ArenaIQ</div>
+      <div class="event-badge">Champions Cup — Quarter Final</div>
+    </div>
+    <div class="live-badge">
+      <div class="live-dot"></div>
+      Live — 62'
+    </div>
+  </div>
+
+  <div class="grid">
+
+    <!-- LEFT: Zone Status -->
+    <div class="panel" style="grid-column:1; grid-row:1/3; overflow-y:auto;">
+      <div class="panel-title">Zone Status</div>
+      <div class="zone-list" id="zone-list"></div>
+
+      <div class="panel-title" style="margin-top:18px;">Wait Times</div>
+      <div class="wait-list" id="wait-list"></div>
+    </div>
+
+    <!-- CENTER: Map -->
+    <div class="panel map-panel">
+      <div class="panel-title">Venue Overview — Live Density</div>
+      <div class="map-container">
+        <svg class="arena-map" viewBox="0 0 480 420" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="pitch-grad" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#1a4a1a"/>
+              <stop offset="100%" stop-color="#133813"/>
+            </radialGradient>
+            <radialGradient id="crowd-north" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#E8293C" stop-opacity="0.6"/>
+              <stop offset="100%" stop-color="#E8293C" stop-opacity="0"/>
+            </radialGradient>
+            <radialGradient id="crowd-south" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#00C9A7" stop-opacity="0.4"/>
+              <stop offset="100%" stop-color="#00C9A7" stop-opacity="0"/>
+            </radialGradient>
+            <radialGradient id="crowd-east" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#F5A623" stop-opacity="0.5"/>
+              <stop offset="100%" stop-color="#F5A623" stop-opacity="0"/>
+            </radialGradient>
+            <radialGradient id="crowd-west" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#00C9A7" stop-opacity="0.35"/>
+              <stop offset="100%" stop-color="#00C9A7" stop-opacity="0"/>
+            </radialGradient>
+            <marker id="ma" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+              <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </marker>
+          </defs>
+
+          <!-- Stands outline -->
+          <rect x="20" y="20" width="440" height="380" rx="18" fill="#1a1e28" stroke="#2a2e3e" stroke-width="1"/>
+
+          <!-- North stand -->
+          <rect x="60" y="28" width="360" height="68" rx="8" fill="#1e2332" stroke="#2a2e3e" stroke-width="0.5"/>
+          <!-- South stand -->
+          <rect x="60" y="324" width="360" height="68" rx="8" fill="#1e2332" stroke="#2a2e3e" stroke-width="0.5"/>
+          <!-- West stand -->
+          <rect x="28" y="88" width="68" height="244" rx="8" fill="#1e2332" stroke="#2a2e3e" stroke-width="0.5"/>
+          <!-- East stand -->
+          <rect x="384" y="88" width="68" height="244" rx="8" fill="#1e2332" stroke="#2a2e3e" stroke-width="0.5"/>
+
+          <!-- Density heatmap overlays -->
+          <ellipse class="crowd-hot" cx="240" cy="62" rx="120" ry="36" fill="url(#crowd-north)"/>
+          <ellipse cx="240" cy="358" rx="120" ry="36" fill="url(#crowd-south)"/>
+          <ellipse cx="62" cy="210" rx="36" ry="90" fill="url(#crowd-west)"/>
+          <ellipse cx="418" cy="210" rx="36" ry="90" fill="url(#crowd-east)"/>
+
+          <!-- Pitch -->
+          <rect x="120" y="106" width="240" height="208" rx="4" fill="url(#pitch-grad)" stroke="#1d5c1d" stroke-width="1"/>
+          <!-- Pitch lines -->
+          <rect x="120" y="106" width="240" height="208" rx="4" fill="none" stroke="#2a6a2a" stroke-width="0.5"/>
+          <line x1="240" y1="106" x2="240" y2="314" stroke="#2a6a2a" stroke-width="0.5"/>
+          <ellipse cx="240" cy="210" rx="28" ry="28" fill="none" stroke="#2a6a2a" stroke-width="0.5"/>
+          <rect x="147" y="132" width="52" height="32" rx="2" fill="none" stroke="#2a6a2a" stroke-width="0.5"/>
+          <rect x="281" y="132" width="52" height="32" rx="2" fill="none" stroke="#2a6a2a" stroke-width="0.5"/>
+          <rect x="147" y="282" width="52" height="32" rx="2" fill="none" stroke="#2a6a2a" stroke-width="0.5"/>
+          <rect x="281" y="282" width="52" height="32" rx="2" fill="none" stroke="#2a6a2a" stroke-width="0.5"/>
+          <circle cx="240" cy="210" r="2" fill="#2a6a2a"/>
+
+          <!-- Gate labels -->
+          <text x="240" y="48" text-anchor="middle" font-family="Barlow Condensed,sans-serif" font-size="10" font-weight="700" letter-spacing="2" fill="#E8293C" opacity="0.9">NORTH — CRITICAL</text>
+          <text x="240" y="374" text-anchor="middle" font-family="Barlow Condensed,sans-serif" font-size="10" font-weight="600" letter-spacing="1.5" fill="#00C9A7" opacity="0.8">SOUTH — CLEAR</text>
+          <text x="52" y="214" text-anchor="middle" font-family="Barlow Condensed,sans-serif" font-size="9" font-weight="600" letter-spacing="1" fill="#00C9A7" transform="rotate(-90 52 214)" opacity="0.8">WEST — CLEAR</text>
+          <text x="428" y="214" text-anchor="middle" font-family="Barlow Condensed,sans-serif" font-size="9" font-weight="600" letter-spacing="1" fill="#F5A623" transform="rotate(90 428 214)" opacity="0.8">EAST — HIGH</text>
+
+          <!-- Crowd flow arrows -->
+          <!-- Divert from North to East/West -->
+          <path class="flow-path" fill="none" stroke="#F5A623" stroke-width="1.5" d="M210 96 Q160 100 110 140" marker-end="url(#ma)" opacity="0.7"/>
+          <path class="flow-path" fill="none" stroke="#F5A623" stroke-width="1.5" d="M270 96 Q330 100 370 140" marker-end="url(#ma)" opacity="0.7" style="animation-delay:0.4s"/>
+
+          <!-- Concession icons (circles with labels) -->
+          <g opacity="0.85">
+            <!-- Food stalls -->
+            <circle cx="150" cy="78" r="7" fill="#141820" stroke="#F5A623" stroke-width="1"/>
+            <text x="150" y="82" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#F5A623">F</text>
+            <circle cx="330" cy="78" r="7" fill="#141820" stroke="#F5A623" stroke-width="1"/>
+            <text x="330" y="82" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#F5A623">F</text>
+            <circle cx="150" cy="342" r="7" fill="#141820" stroke="#F5A623" stroke-width="1"/>
+            <text x="150" y="346" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#F5A623">F</text>
+            <circle cx="330" cy="342" r="7" fill="#141820" stroke="#F5A623" stroke-width="1"/>
+            <text x="330" y="346" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#F5A623">F</text>
+
+            <!-- Restrooms -->
+            <circle cx="50" cy="162" r="7" fill="#141820" stroke="#1A6FFF" stroke-width="1"/>
+            <text x="50" y="166" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#1A6FFF">R</text>
+            <circle cx="430" cy="162" r="7" fill="#141820" stroke="#1A6FFF" stroke-width="1"/>
+            <text x="430" y="166" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#1A6FFF">R</text>
+            <circle cx="50" cy="258" r="7" fill="#141820" stroke="#1A6FFF" stroke-width="1"/>
+            <text x="50" y="262" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#1A6FFF">R</text>
+            <circle cx="430" cy="258" r="7" fill="#141820" stroke="#1A6FFF" stroke-width="1"/>
+            <text x="430" y="262" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#1A6FFF">R</text>
+
+            <!-- Medical stations -->
+            <circle cx="96" cy="96" r="7" fill="#141820" stroke="#E8293C" stroke-width="1"/>
+            <text x="96" y="100" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#E8293C">+</text>
+            <circle cx="384" cy="324" r="7" fill="#141820" stroke="#E8293C" stroke-width="1"/>
+            <text x="384" y="328" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#E8293C">+</text>
+          </g>
+
+          <!-- Scoreboard overlay -->
+          <rect x="178" y="172" width="124" height="36" rx="6" fill="rgba(10,13,20,0.85)" stroke="#2a2e3e" stroke-width="0.5"/>
+          <text x="216" y="191" text-anchor="middle" font-family="Barlow Condensed,sans-serif" font-size="14" font-weight="700" fill="#E8E6DF">2</text>
+          <text x="240" y="191" text-anchor="middle" font-family="Barlow Condensed,sans-serif" font-size="10" fill="#7A7870">—</text>
+          <text x="264" y="191" text-anchor="middle" font-family="Barlow Condensed,sans-serif" font-size="14" font-weight="700" fill="#E8E6DF">1</text>
+          <text x="240" y="203" text-anchor="middle" font-family="Barlow Condensed,sans-serif" font-size="9" fill="#7A7870">62'</text>
+        </svg>
+        <div class="map-overlay">
+          <span class="legend-item"><span class="legend-dot" style="background:#E8293C"></span>Critical density</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#F5A623"></span>High density</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#00C9A7"></span>Clear</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#F5A623;border-radius:0;width:16px;height:3px;margin-top:2px"></span>Divert route</span>
+          <span class="legend-item"><span style="color:#F5A623;font-size:10px">F</span> Food&nbsp;&nbsp;<span style="color:#1A6FFF;font-size:10px">R</span> Restroom&nbsp;&nbsp;<span style="color:#E8293C;font-size:10px">+</span> Medical</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT TOP: Stats -->
+    <div class="panel right-top">
+      <div class="panel-title">Live Stats</div>
+      <div class="stat-grid">
+        <div class="stat-card highlight">
+          <div class="stat-val" id="stat-attend">67,240</div>
+          <div class="stat-label">Attendance</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="stat-cap">94%</div>
+          <div class="stat-label">Capacity</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="stat-wait" style="color:var(--arena-gold)">11m</div>
+          <div class="stat-label">Avg wait</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="stat-flow">2.4k</div>
+          <div class="stat-label">Flow /min</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" style="color:var(--arena-red)" id="stat-alerts">3</div>
+          <div class="stat-label">Alerts</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" style="color:var(--arena-teal)">4</div>
+          <div class="stat-label">Staff Deployed</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT BOTTOM: Tabs for Alerts/AI -->
+    <div class="panel right-bottom" style="overflow-y:auto">
+      <div class="tab-row">
+        <button class="tab-btn active" onclick="showTab('alerts', this)">Alerts</button>
+        <button class="tab-btn" onclick="showTab('ai', this)">AI Recs</button>
+      </div>
+
+      <div class="tab-content active" id="tab-alerts">
+        <div class="alerts-list" id="alerts-list"></div>
+      </div>
+
+      <div class="tab-content" id="tab-ai">
+        <div style="display:flex;flex-direction:column;gap:8px" id="ai-recs"></div>
+      </div>
+    </div>
+
+    <!-- BOTTOM: Announcement bar -->
+    <div class="announce">
+      <span class="announce-label">Broadcast</span>
+      <div class="announce-ticker">
+        <span class="announce-msg" id="ticker-msg">North Gate 7 crowd density critical — AI redirecting fans to Gates 3 & 11 via SMS &nbsp;|&nbsp; Concourse B restroom queue reduced — 2 extra units deployed &nbsp;|&nbsp; Section 114 medical staff en route — ETA 2 min &nbsp;|&nbsp; East stand food court now open — estimated 5 min wait</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const zones = [
+  { name: 'North Stand', cap: '18,400', pct: 96, color: '#E8293C', status: 'crit', label: 'Critical' },
+  { name: 'South Stand', cap: '18,200', pct: 61, color: '#00C9A7', status: 'ok', label: 'Clear' },
+  { name: 'East Stand', cap: '15,600', pct: 82, color: '#F5A623', status: 'warn', label: 'High' },
+  { name: 'West Stand', cap: '15,040', pct: 58, color: '#00C9A7', status: 'ok', label: 'Clear' },
+  { name: 'Concourse A', cap: '8,000', pct: 88, color: '#F5A623', status: 'warn', label: 'High' },
+  { name: 'Concourse B', cap: '8,000', pct: 45, color: '#00C9A7', status: 'ok', label: 'Clear' },
+];
+
+const zoneList = document.getElementById('zone-list');
+zones.forEach((z, i) => {
+  zoneList.innerHTML += `
+    <div class="zone-item${i===0?' active':''}" style="--zone-color:${z.color}">
+      <div class="zone-header">
+        <div>
+          <div class="zone-name">${z.name}</div>
+          <div class="zone-cap">${z.pct}% of ${z.cap}</div>
+        </div>
+        <span class="status-pill ${z.status}">${z.label}</span>
+      </div>
+      <div class="zone-bar-track"><div class="zone-bar-fill" style="width:${z.pct}%;background:${z.color}"></div></div>
+    </div>`;
+});
+
+const waits = [
+  { name: 'Gate 7 N', mins: 18, color: '#E8293C' },
+  { name: 'Concession A3', mins: 14, color: '#F5A623' },
+  { name: 'Gate 3 S', mins: 4, color: '#00C9A7' },
+  { name: 'Restroom B', mins: 7, color: '#F5A623' },
+  { name: 'Gate 11 W', mins: 3, color: '#00C9A7' },
+  { name: 'Merch Stand 2', mins: 9, color: '#F5A623' },
+];
+
+const waitList = document.getElementById('wait-list');
+waits.forEach(w => {
+  const pct = Math.round(w.mins / 20 * 100);
+  waitList.innerHTML += `
+    <div class="wait-row" style="--w-color:${w.color}">
+      <div class="wait-name">${w.name}</div>
+      <div class="wait-bar-bg"><div class="wait-bar-inner" style="width:${pct}%;background:${w.color}"></div></div>
+      <div class="wait-mins">${w.mins}m</div>
+    </div>`;
+});
+
+const alerts = [
+  { msg: 'Gate 7 — overcrowding detected, capacity at 96%', zone: 'North', color: '#E8293C', time: '63\'' },
+  { msg: 'Concourse A food queue exceeded 14 min threshold', zone: 'East', color: '#F5A623', time: '61\'' },
+  { msg: 'Section 114 — medical assistance requested', zone: 'North', color: '#E8293C', time: '59\'' },
+  { msg: 'Parking lot D — exit queue forming, advise early exit', zone: 'Outer', color: '#F5A623', time: '55\'' },
+  { msg: 'Restroom block B2 operational — queue reduced', zone: 'South', color: '#00C9A7', time: '52\'' },
+];
+
+const alertList = document.getElementById('alerts-list');
+alerts.forEach(a => {
+  alertList.innerHTML += `
+    <div class="alert-item" style="--alert-color:${a.color}">
+      ${a.msg}
+      <div class="alert-meta">${a.zone} · ${a.time}</div>
+    </div>`;
+});
+
+const aiRecs = [
+  { icon: '→', title: 'Redirect via Gate 3 & 11', desc: 'AI-generated SMS sent to 2,140 ticket holders in North Stand aisle 4–8.', color: '#E8293C' },
+  { icon: '↑', title: 'Deploy 3 extra staff Concourse A', desc: 'Predicted queue spike in next 8 min based on halftime pattern.', color: '#F5A623' },
+  { icon: '◎', title: 'Open auxiliary exit E2', desc: 'Early-exit model forecasts 6,000+ fans leaving at 75\'. Pre-open now.', color: '#1A6FFF' },
+  { icon: '✓', title: 'South Concourse nominal', desc: 'No action needed. Density stable at 61%.', color: '#00C9A7' },
+];
+
+const aiRecEl = document.getElementById('ai-recs');
+aiRecs.forEach(r => {
+  aiRecEl.innerHTML += `
+    <div style="background:var(--arena-surface);border:1px solid var(--arena-border);border-left:3px solid ${r.color};border-radius:6px;padding:10px 12px">
+      <div style="font-size:12px;font-weight:600;color:${r.color};margin-bottom:3px">${r.icon} ${r.title}</div>
+      <div style="font-size:11px;color:var(--arena-muted);line-height:1.5">${r.desc}</div>
+    </div>`;
+});
+
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// Simulate live updates every 8s
+function tick() {
+  const delta = (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 3);
+  const cur = parseInt(document.getElementById('stat-attend').textContent.replace(',',''));
+  document.getElementById('stat-attend').textContent = (cur + delta).toLocaleString();
+  const mins = 9 + Math.floor(Math.random() * 5);
+  document.getElementById('stat-wait').textContent = mins + 'm';
+  const flow = (2.1 + Math.random() * 0.7).toFixed(1);
+  document.getElementById('stat-flow').textContent = flow + 'k';
+}
+setInterval(tick, 7000);
+</script>
