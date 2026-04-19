@@ -4,259 +4,1101 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>ArenaIQ — Smart Venue Intelligence</title>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;}
-:root{
-  --orange:#FF5C1A;--gold:#F5A623;--teal:#00C9A7;--blue:#1A6FFF;--red:#E8293C;
-  --bg:#0A0D14;--surface:#141820;--border:rgba(255,255,255,0.08);--text:#E8E6DF;--muted:#7A7870;
+:root {
+  --bg:        #080c14;
+  --bg2:       #0d1320;
+  --bg3:       #111927;
+  --panel:     #0f1824;
+  --border:    rgba(0,200,255,0.12);
+  --border2:   rgba(0,200,255,0.25);
+  --cyan:      #00c8ff;
+  --cyan2:     #00eeff;
+  --green:     #00ff88;
+  --amber:     #ffb800;
+  --red:       #ff3b5c;
+  --purple:    #a855f7;
+  --text:      #c8d8e8;
+  --text2:     #6888a0;
+  --font-head: 'Rajdhani', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-body: 'Inter', sans-serif;
 }
-body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-height:100vh;}
-.header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;}
-.logo{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:22px;letter-spacing:2px;text-transform:uppercase;color:var(--orange);}
-.event-badge{background:rgba(255,92,26,0.15);border:1px solid rgba(255,92,26,0.3);color:var(--orange);font-size:11px;font-weight:600;letter-spacing:1px;padding:3px 10px;border-radius:4px;text-transform:uppercase;}
-.live-badge{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--red);letter-spacing:1px;text-transform:uppercase;}
-.live-dot{width:8px;height:8px;background:var(--red);border-radius:50%;animation:pulse-red 1.2s ease-in-out infinite;}
-@keyframes pulse-red{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(0.8);}}
-.grid{display:grid;grid-template-columns:240px 1fr 220px;grid-template-rows:1fr auto;gap:1px;background:var(--border);height:calc(100vh - 57px);min-height:600px;}
-.panel{background:var(--bg);padding:16px;overflow:hidden;}
-.panel-title{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}
-.zone-list{display:flex;flex-direction:column;gap:8px;}
-.zone-item{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px;cursor:pointer;transition:border-color 0.2s;position:relative;overflow:hidden;}
-.zone-item:hover{border-color:rgba(255,92,26,0.4);}
-.zone-item.active{border-color:var(--orange);}
-.zone-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:8px 0 0 8px;background:var(--zone-color,var(--muted));}
-.zone-header{display:flex;justify-content:space-between;align-items:center;}
-.zone-name{font-size:13px;font-weight:600;}
-.zone-cap{font-size:11px;color:var(--muted);margin-top:2px;}
-.zone-bar-track{margin-top:8px;height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;}
-.zone-bar-fill{height:100%;border-radius:2px;transition:width 1s ease;}
-.status-pill{font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;letter-spacing:0.5px;text-transform:uppercase;}
-.ok{background:rgba(0,201,167,0.15);color:var(--teal);}
-.warn{background:rgba(245,166,35,0.15);color:var(--gold);}
-.crit{background:rgba(232,41,60,0.15);color:var(--red);}
-.map-panel{grid-column:2;grid-row:1/3;position:relative;}
-.map-container{position:relative;width:100%;height:calc(100% - 30px);}
-svg.arena-map{width:100%;height:100%;}
-.map-overlay{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:16px;background:rgba(10,13,20,0.85);border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-size:11px;color:var(--muted);white-space:nowrap;}
-.legend-item{display:flex;align-items:center;gap:5px;}
-.legend-dot{width:8px;height:8px;border-radius:50%;}
-.right-top{grid-column:3;grid-row:1;}
-.right-bottom{grid-column:3;grid-row:2;}
-.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px;text-align:center;}
-.stat-val{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:700;line-height:1;color:var(--text);}
-.stat-label{font-size:10px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:0.5px;}
-.stat-card.highlight{border-color:rgba(255,92,26,0.4);}
-.stat-card.highlight .stat-val{color:var(--orange);}
-.alerts-list{display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto;}
-.alerts-list::-webkit-scrollbar{width:3px;}
-.alerts-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
-.alert-item{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--alert-color,var(--muted));border-radius:6px;padding:8px 10px;font-size:12px;animation:slide-in 0.3s ease;}
-@keyframes slide-in{from{opacity:0;transform:translateX(8px);}to{opacity:1;transform:translateX(0);}}
-.alert-meta{font-size:10px;color:var(--muted);margin-top:3px;}
-.wait-list{display:flex;flex-direction:column;gap:6px;}
-.wait-row{display:flex;align-items:center;gap:8px;font-size:12px;}
-.wait-name{flex:1;color:var(--muted);}
-.wait-bar-bg{width:80px;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;}
-.wait-bar-inner{height:100%;border-radius:3px;transition:width 1s ease;}
-.wait-mins{font-size:12px;font-weight:600;min-width:28px;text-align:right;}
-.tab-row{display:flex;gap:2px;margin-bottom:14px;}
-.tab-btn{background:none;border:none;color:var(--muted);font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;cursor:pointer;border-radius:4px;transition:color 0.2s,background 0.2s;}
-.tab-btn.active{color:var(--text);background:var(--surface);}
-.tab-content{display:none;}
-.tab-content.active{display:block;}
-.announce{grid-column:1/4;background:linear-gradient(90deg,rgba(255,92,26,0.12),transparent);border-top:1px solid rgba(255,92,26,0.2);padding:8px 20px;font-size:12px;color:var(--orange);display:flex;align-items:center;gap:10px;overflow:hidden;}
-.announce-label{font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:2px;font-size:11px;text-transform:uppercase;white-space:nowrap;padding-right:12px;border-right:1px solid rgba(255,92,26,0.3);}
-.announce-ticker{overflow:hidden;flex:1;position:relative;height:18px;}
-.announce-msg{position:absolute;white-space:nowrap;animation:ticker 22s linear infinite;font-weight:500;}
-@keyframes ticker{0%{left:100%;}100%{left:-200%;}}
-@keyframes flow-dash{to{stroke-dashoffset:-30;}}
-.flow-path{stroke-dasharray:6 6;animation:flow-dash 1.2s linear infinite;}
-@keyframes crowd-pulse{0%,100%{opacity:0.7;}50%{opacity:1;}}
-.crowd-hot{animation:crowd-pulse 1.8s ease-in-out infinite;}
-@media(max-width:700px){
-  .grid{grid-template-columns:1fr;grid-template-rows:auto;}
-  .map-panel{grid-column:1;grid-row:2;}
-  .right-top,.right-bottom{grid-column:1;}
-  .announce{grid-column:1;}
+*{margin:0;padding:0;box-sizing:border-box}
+html{font-size:14px}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;overflow-x:hidden}
+
+/* ── SCANLINE OVERLAY ── */
+body::before{
+  content:'';position:fixed;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);
+  pointer-events:none;z-index:9999
 }
+
+/* ── TOP BAR ── */
+#topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;height:52px;background:var(--bg2);
+  border-bottom:1px solid var(--border2);position:sticky;top:0;z-index:100
+}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{width:32px;height:32px;border:2px solid var(--cyan);border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(0,200,255,0.08);font-size:16px}
+.logo-text{font-family:var(--font-head);font-size:22px;font-weight:700;
+  letter-spacing:2px;color:#fff}
+.logo-text span{color:var(--cyan)}
+.logo-sub{font-family:var(--font-mono);font-size:9px;color:var(--text2);letter-spacing:3px;margin-top:1px}
+.topbar-center{display:flex;gap:6px}
+.tab-btn{
+  font-family:var(--font-mono);font-size:10px;letter-spacing:1px;
+  padding:5px 14px;border-radius:4px;border:1px solid var(--border);
+  background:transparent;color:var(--text2);cursor:pointer;transition:all .2s;text-transform:uppercase
+}
+.tab-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.tab-btn.active{background:rgba(0,200,255,0.12);border-color:var(--cyan2);color:var(--cyan2)}
+.topbar-right{display:flex;align-items:center;gap:14px}
+.status-dot{width:8px;height:8px;border-radius:50%;background:var(--green);
+  box-shadow:0 0 8px var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.live-badge{font-family:var(--font-mono);font-size:9px;color:var(--green);letter-spacing:2px}
+#clock{font-family:var(--font-mono);font-size:12px;color:var(--cyan);letter-spacing:1px}
+
+/* ── LAYOUT ── */
+#app{display:grid;grid-template-columns:1fr 320px;grid-template-rows:auto 1fr;height:calc(100vh - 52px)}
+#ticker-bar{
+  grid-column:1/-1;background:rgba(0,0,0,0.4);border-bottom:1px solid var(--border);
+  height:32px;display:flex;align-items:center;overflow:hidden;position:relative
+}
+.ticker-label{
+  font-family:var(--font-mono);font-size:9px;color:var(--bg);background:var(--cyan);
+  padding:0 10px;height:100%;display:flex;align-items:center;letter-spacing:2px;white-space:nowrap;flex-shrink:0
+}
+.ticker-scroll{display:flex;gap:0;animation:scroll-x 40s linear infinite;white-space:nowrap}
+@keyframes scroll-x{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.ticker-item{
+  font-family:var(--font-mono);font-size:10px;color:var(--cyan);
+  padding:0 24px;border-right:1px solid var(--border);letter-spacing:.5px
+}
+.ticker-item.warn{color:var(--amber)}
+.ticker-item.crit{color:var(--red)}
+
+/* ── MAIN PANEL ── */
+#main{overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px}
+
+/* ── STAT CARDS ROW ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.stat-card{
+  background:var(--panel);border:1px solid var(--border);border-radius:8px;
+  padding:14px 16px;position:relative;overflow:hidden;cursor:pointer;transition:border-color .2s
+}
+.stat-card:hover{border-color:var(--border2)}
+.stat-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--accent,var(--cyan)),transparent)
+}
+.stat-card.green{--accent:var(--green)}
+.stat-card.amber{--accent:var(--amber)}
+.stat-card.red{--accent:var(--red)}
+.stat-label{font-family:var(--font-mono);font-size:9px;color:var(--text2);letter-spacing:2px;margin-bottom:6px;text-transform:uppercase}
+.stat-value{font-family:var(--font-head);font-size:28px;font-weight:700;color:#fff;line-height:1}
+.stat-unit{font-size:13px;color:var(--text2);margin-left:2px}
+.stat-delta{font-family:var(--font-mono);font-size:10px;margin-top:4px}
+.stat-delta.up{color:var(--red)}
+.stat-delta.down{color:var(--green)}
+.stat-delta.neutral{color:var(--text2)}
+
+/* ── GRID ROW 2 ── */
+.grid-2{display:grid;grid-template-columns:1.4fr 1fr;gap:10px}
+
+/* ── VENUE MAP ── */
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.panel-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 16px;border-bottom:1px solid var(--border);
+  background:rgba(0,200,255,0.03)
+}
+.panel-title{font-family:var(--font-head);font-size:14px;font-weight:600;letter-spacing:1px;color:#fff;text-transform:uppercase}
+.panel-badge{font-family:var(--font-mono);font-size:9px;padding:2px 8px;border-radius:3px;letter-spacing:1px}
+.badge-live{background:rgba(0,255,136,0.12);color:var(--green);border:1px solid rgba(0,255,136,0.3)}
+.badge-ai{background:rgba(168,85,247,0.12);color:var(--purple);border:1px solid rgba(168,85,247,0.3)}
+.badge-warn{background:rgba(255,184,0,0.12);color:var(--amber);border:1px solid rgba(255,184,0,0.3)}
+
+#venue-map{padding:16px;position:relative}
+#map-svg{width:100%;height:260px}
+
+/* stadium zones */
+.zone-area{transition:opacity .3s;cursor:pointer}
+.zone-area:hover{opacity:.85}
+.zone-label{font-family:var(--font-mono);font-size:9px;fill:#fff;letter-spacing:.5px;text-anchor:middle}
+.zone-count{font-family:var(--font-head);font-size:14px;font-weight:700;text-anchor:middle}
+.density-low{fill:rgba(0,255,136,0.25);stroke:rgba(0,255,136,0.6);stroke-width:1.5}
+.density-med{fill:rgba(255,184,0,0.25);stroke:rgba(255,184,0,0.6);stroke-width:1.5}
+.density-high{fill:rgba(255,59,92,0.25);stroke:rgba(255,59,92,0.7);stroke-width:2}
+.density-crit{fill:rgba(255,59,92,0.45);stroke:#ff3b5c;stroke-width:2.5;animation:zone-flash 1s infinite}
+@keyframes zone-flash{0%,100%{stroke-opacity:1}50%{stroke-opacity:.3}}
+.divert-path{fill:none;stroke:var(--cyan);stroke-width:1.5;stroke-dasharray:6 4;animation:dash-move 1.5s linear infinite;opacity:.7}
+@keyframes dash-move{to{stroke-dashoffset:-20}}
+
+/* ── QUEUE BARS ── */
+#queue-panel .panel-body{padding:12px 16px;display:flex;flex-direction:column;gap:8px}
+.queue-row{display:flex;flex-direction:column;gap:4px}
+.queue-meta{display:flex;justify-content:space-between;align-items:center}
+.queue-name{font-size:11px;color:var(--text);font-family:var(--font-mono)}
+.queue-time{font-family:var(--font-head);font-size:13px;font-weight:600}
+.queue-time.ok{color:var(--green)}
+.queue-time.warn{color:var(--amber)}
+.queue-time.bad{color:var(--red)}
+.queue-bar-bg{height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden}
+.queue-bar-fill{height:100%;border-radius:2px;transition:width .8s ease}
+.fill-ok{background:var(--green)}
+.fill-warn{background:var(--amber)}
+.fill-bad{background:var(--red)}
+.queue-predict{font-family:var(--font-mono);font-size:9px;color:var(--purple);margin-top:2px}
+
+/* ── BOTTOM GRID ── */
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+#stand-panel .panel-body,#exit-panel .panel-body,#ai-divert .panel-body{padding:12px 16px}
+
+.stand-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:7px 0;border-bottom:1px solid var(--border);gap:8px
+}
+.stand-row:last-child{border-bottom:none}
+.stand-name{font-size:11px;color:var(--text);font-family:var(--font-body);flex:1}
+.stand-bar-wrap{flex:1;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden}
+.stand-bar{height:100%;border-radius:3px;transition:width 1s ease}
+.stand-pct{font-family:var(--font-mono);font-size:10px;min-width:34px;text-align:right}
+
+.exit-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border)}
+.exit-row:last-child{border-bottom:none}
+.exit-icon{font-size:16px}
+.exit-info{flex:1}
+.exit-name{font-size:11px;color:var(--text)}
+.exit-status{font-family:var(--font-mono);font-size:9px;color:var(--text2);margin-top:1px}
+.exit-eta{font-family:var(--font-mono);font-size:10px;color:var(--amber)}
+.exit-btn{
+  font-family:var(--font-mono);font-size:9px;padding:3px 8px;border-radius:3px;
+  border:1px solid var(--border2);background:transparent;color:var(--cyan);cursor:pointer;
+  letter-spacing:1px;transition:all .15s
+}
+.exit-btn:hover{background:rgba(0,200,255,0.1)}
+.exit-btn.open{border-color:var(--green);color:var(--green);background:rgba(0,255,136,0.08)}
+
+.ai-rec{
+  background:rgba(168,85,247,0.06);border:1px solid rgba(168,85,247,0.2);
+  border-radius:6px;padding:9px 11px;margin-bottom:7px;cursor:pointer;transition:border-color .2s
+}
+.ai-rec:last-child{margin-bottom:0}
+.ai-rec:hover{border-color:rgba(168,85,247,0.5)}
+.ai-rec-head{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.ai-chip{font-family:var(--font-mono);font-size:8px;padding:2px 6px;border-radius:2px;
+  background:rgba(168,85,247,0.2);color:var(--purple);letter-spacing:1px}
+.ai-conf{font-family:var(--font-mono);font-size:9px;color:var(--text2);margin-left:auto}
+.ai-text{font-size:11px;color:var(--text);line-height:1.5}
+.ai-impact{font-family:var(--font-mono);font-size:9px;color:var(--cyan);margin-top:4px}
+
+/* ── RIGHT SIDEBAR ── */
+#sidebar{
+  border-left:1px solid var(--border);display:flex;flex-direction:column;
+  overflow:hidden;background:var(--bg2)
+}
+#sidebar-tabs{display:flex;border-bottom:1px solid var(--border)}
+.stab{
+  flex:1;padding:10px 0;font-family:var(--font-mono);font-size:9px;letter-spacing:1.5px;
+  text-align:center;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent;
+  transition:all .2s;text-transform:uppercase
+}
+.stab.active{color:var(--cyan);border-bottom-color:var(--cyan);background:rgba(0,200,255,0.04)}
+.stab:hover:not(.active){color:var(--text)}
+.sidebar-pane{display:none;flex-direction:column;flex:1;overflow-y:auto}
+.sidebar-pane.active{display:flex}
+
+/* alerts */
+.alert-item{
+  padding:11px 14px;border-bottom:1px solid var(--border);cursor:pointer;
+  transition:background .15s;position:relative
+}
+.alert-item:hover{background:rgba(255,255,255,0.02)}
+.alert-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px}
+.alert-item.crit::before{background:var(--red)}
+.alert-item.warn::before{background:var(--amber)}
+.alert-item.info::before{background:var(--cyan)}
+.alert-item.ai::before{background:var(--purple)}
+.alert-type{font-family:var(--font-mono);font-size:8px;letter-spacing:1.5px;margin-bottom:3px}
+.crit .alert-type{color:var(--red)}
+.warn .alert-type{color:var(--amber)}
+.info .alert-type{color:var(--cyan)}
+.ai .alert-type{color:var(--purple)}
+.alert-msg{font-size:11px;color:var(--text);line-height:1.45}
+.alert-zone{font-family:var(--font-mono);font-size:9px;color:var(--text2);margin-top:3px}
+.alert-time{font-family:var(--font-mono);font-size:9px;color:var(--text2);float:right}
+
+/* api console */
+#api-console{display:flex;flex-direction:column;flex:1;overflow:hidden}
+.console-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);flex-shrink:0}
+.ctab{
+  flex:1;padding:7px 0;font-family:var(--font-mono);font-size:9px;letter-spacing:1px;
+  text-align:center;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent;
+  transition:all .2s;text-transform:uppercase
+}
+.ctab.active{color:var(--green);border-bottom-color:var(--green)}
+.console-body{flex:1;overflow-y:auto;padding:10px}
+.api-endpoint{
+  background:rgba(0,255,136,0.04);border:1px solid rgba(0,255,136,0.15);
+  border-radius:6px;padding:10px;margin-bottom:8px
+}
+.endpoint-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.method{
+  font-family:var(--font-mono);font-size:9px;padding:2px 7px;border-radius:3px;letter-spacing:1px
+}
+.method.get{background:rgba(0,255,136,0.15);color:var(--green)}
+.method.post{background:rgba(0,200,255,0.15);color:var(--cyan)}
+.endpoint-path{font-family:var(--font-mono);font-size:10px;color:var(--cyan)}
+.endpoint-desc{font-size:10px;color:var(--text2);margin-bottom:6px}
+.try-btn{
+  font-family:var(--font-mono);font-size:9px;padding:4px 12px;border-radius:3px;
+  border:1px solid rgba(0,255,136,0.3);background:rgba(0,255,136,0.06);color:var(--green);
+  cursor:pointer;letter-spacing:1px;transition:all .15s;width:100%
+}
+.try-btn:hover{background:rgba(0,255,136,0.12)}
+.api-response{
+  background:#060a10;border:1px solid var(--border);border-radius:6px;
+  padding:10px;margin-top:6px;font-family:var(--font-mono);font-size:9px;
+  color:var(--green);line-height:1.6;max-height:180px;overflow-y:auto;display:none
+}
+.api-response.show{display:block}
+.json-key{color:var(--cyan)}
+.json-str{color:var(--amber)}
+.json-num{color:var(--purple)}
+.json-bool{color:var(--green)}
+
+/* backend status */
+#backend-status{padding:12px;display:flex;flex-direction:column;gap:8px}
+.bs-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 10px;background:rgba(0,200,255,0.03);border:1px solid var(--border);
+  border-radius:6px
+}
+.bs-name{font-family:var(--font-mono);font-size:10px;color:var(--text)}
+.bs-val{font-family:var(--font-mono);font-size:10px}
+.bs-val.ok{color:var(--green)}
+.bs-val.warn{color:var(--amber)}
+.bs-ping{animation:ping-update .3s ease}
+@keyframes ping-update{0%{opacity:.3}100%{opacity:1}}
+
+/* scrollbars */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+/* ── MODAL ── */
+#modal-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;
+  align-items:center;justify-content:center
+}
+#modal-overlay.show{display:flex}
+#modal{
+  background:var(--bg2);border:1px solid var(--border2);border-radius:10px;
+  width:460px;max-width:95vw;max-height:80vh;overflow-y:auto
+}
+.modal-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px;border-bottom:1px solid var(--border)
+}
+.modal-title{font-family:var(--font-head);font-size:16px;font-weight:600;color:#fff;letter-spacing:1px}
+.modal-close{background:none;border:none;color:var(--text2);cursor:pointer;font-size:18px;line-height:1}
+.modal-body{padding:18px}
+.modal-stat{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px}
+.modal-stat:last-child{border-bottom:none}
+.mstat-label{color:var(--text2);font-family:var(--font-mono)}
+.mstat-val{color:#fff;font-family:var(--font-head);font-size:14px;font-weight:600}
 </style>
 </head>
 <body>
-<div class="header">
-  <div style="display:flex;align-items:center;gap:12px;">
-    <div class="logo">ArenaIQ</div>
-    <div class="event-badge">Champions Cup — Quarter Final</div>
+
+<!-- TOP BAR -->
+<div id="topbar">
+  <div class="logo">
+    <div class="logo-icon">🏟</div>
+    <div>
+      <div class="logo-text">Arena<span>IQ</span></div>
+      <div class="logo-sub">VENUE INTELLIGENCE SYSTEM</div>
+    </div>
   </div>
-  <div class="live-badge"><div class="live-dot"></div>Live — 62'</div>
+  <div class="topbar-center">
+    <button class="tab-btn active" onclick="switchView('ops')">OPS CENTRE</button>
+    <button class="tab-btn" onclick="switchView('api')">API CONSOLE</button>
+    <button class="tab-btn" onclick="switchView('backend')">BACKEND STATUS</button>
+  </div>
+  <div class="topbar-right">
+    <div class="status-dot"></div>
+    <div class="live-badge">LIVE</div>
+    <div id="clock">--:--:--</div>
+  </div>
 </div>
-<div class="grid">
-  <!-- LEFT -->
-  <div class="panel" style="grid-column:1;grid-row:1/3;overflow-y:auto;">
-    <div class="panel-title">Zone Status</div>
-    <div class="zone-list" id="zone-list"></div>
-    <div class="panel-title" style="margin-top:18px;">Wait Times</div>
-    <div class="wait-list" id="wait-list"></div>
+
+<!-- APP -->
+<div id="app">
+
+  <!-- TICKER -->
+  <div id="ticker-bar">
+    <div class="ticker-label">▶ BROADCAST</div>
+    <div style="overflow:hidden;flex:1;position:relative">
+      <div class="ticker-scroll" id="ticker-scroll"></div>
+    </div>
   </div>
-  <!-- CENTER MAP -->
-  <div class="panel map-panel">
-    <div class="panel-title">Venue Overview — Live Density</div>
-    <div class="map-container">
-      <svg class="arena-map" viewBox="0 0 480 420" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <radialGradient id="pitch-grad" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#1a4a1a"/><stop offset="100%" stop-color="#133813"/></radialGradient>
-          <radialGradient id="crowd-north" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#E8293C" stop-opacity="0.6"/><stop offset="100%" stop-color="#E8293C" stop-opacity="0"/></radialGradient>
-          <radialGradient id="crowd-south" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#00C9A7" stop-opacity="0.4"/><stop offset="100%" stop-color="#00C9A7" stop-opacity="0"/></radialGradient>
-          <radialGradient id="crowd-east" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#F5A623" stop-opacity="0.5"/><stop offset="100%" stop-color="#F5A623" stop-opacity="0"/></radialGradient>
-          <radialGradient id="crowd-west" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#00C9A7" stop-opacity="0.35"/><stop offset="100%" stop-color="#00C9A7" stop-opacity="0"/></radialGradient>
-          <marker id="ma" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
-        </defs>
-        <rect x="20" y="20" width="440" height="380" rx="18" fill="#1a1e28" stroke="#2a2e3e" stroke-width="1"/>
-        <rect x="60" y="28" width="360" height="68" rx="8" fill="#1e2332" stroke="#2a2e3e" stroke-width="0.5"/>
-        <rect x="60" y="324" width="360" height="68" rx="8" fill="#1e2332" stroke="#2a2e3e" stroke-width="0.5"/>
-        <rect x="28" y="88" width="68" height="244" rx="8" fill="#1e2332" stroke="#2a2e3e" stroke-width="0.5"/>
-        <rect x="384" y="88" width="68" height="244" rx="8" fill="#1e2332" stroke="#2a2e3e" stroke-width="0.5"/>
-        <ellipse class="crowd-hot" cx="240" cy="62" rx="120" ry="36" fill="url(#crowd-north)"/>
-        <ellipse cx="240" cy="358" rx="120" ry="36" fill="url(#crowd-south)"/>
-        <ellipse cx="62" cy="210" rx="36" ry="90" fill="url(#crowd-west)"/>
-        <ellipse cx="418" cy="210" rx="36" ry="90" fill="url(#crowd-east)"/>
-        <rect x="120" y="106" width="240" height="208" rx="4" fill="url(#pitch-grad)" stroke="#1d5c1d" stroke-width="1"/>
-        <rect x="120" y="106" width="240" height="208" rx="4" fill="none" stroke="#2a6a2a" stroke-width="0.5"/>
-        <line x1="240" y1="106" x2="240" y2="314" stroke="#2a6a2a" stroke-width="0.5"/>
-        <ellipse cx="240" cy="210" rx="28" ry="28" fill="none" stroke="#2a6a2a" stroke-width="0.5"/>
-        <rect x="147" y="132" width="52" height="32" rx="2" fill="none" stroke="#2a6a2a" stroke-width="0.5"/>
-        <rect x="281" y="132" width="52" height="32" rx="2" fill="none" stroke="#2a6a2a" stroke-width="0.5"/>
-        <rect x="147" y="282" width="52" height="32" rx="2" fill="none" stroke="#2a6a2a" stroke-width="0.5"/>
-        <rect x="281" y="282" width="52" height="32" rx="2" fill="none" stroke="#2a6a2a" stroke-width="0.5"/>
-        <circle cx="240" cy="210" r="2" fill="#2a6a2a"/>
-        <text x="240" y="48" text-anchor="middle" font-family="Barlow Condensed,sans-serif" font-size="10" font-weight="700" letter-spacing="2" fill="#E8293C" opacity="0.9">NORTH — CRITICAL</text>
-        <text x="240" y="374" text-anchor="middle" font-family="Barlow Condensed,sans-serif" font-size="10" font-weight="600" letter-spacing="1.5" fill="#00C9A7" opacity="0.8">SOUTH — CLEAR</text>
-        <text x="52" y="214" text-anchor="middle" font-family="Barlow Condensed,sans-serif" font-size="9" font-weight="600" letter-spacing="1" fill="#00C9A7" transform="rotate(-90 52 214)" opacity="0.8">WEST — CLEAR</text>
-        <text x="428" y="214" text-anchor="middle" font-family="Barlow Condensed,sans-serif" font-size="9" font-weight="600" letter-spacing="1" fill="#F5A623" transform="rotate(90 428 214)" opacity="0.8">EAST — HIGH</text>
-        <path class="flow-path" fill="none" stroke="#F5A623" stroke-width="1.5" d="M210 96 Q160 100 110 140" marker-end="url(#ma)" opacity="0.7"/>
-        <path class="flow-path" fill="none" stroke="#F5A623" stroke-width="1.5" d="M270 96 Q330 100 370 140" marker-end="url(#ma)" opacity="0.7" style="animation-delay:0.4s"/>
-        <g opacity="0.85">
-          <circle cx="150" cy="78" r="7" fill="#141820" stroke="#F5A623" stroke-width="1"/><text x="150" y="82" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#F5A623">F</text>
-          <circle cx="330" cy="78" r="7" fill="#141820" stroke="#F5A623" stroke-width="1"/><text x="330" y="82" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#F5A623">F</text>
-          <circle cx="150" cy="342" r="7" fill="#141820" stroke="#F5A623" stroke-width="1"/><text x="150" y="346" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#F5A623">F</text>
-          <circle cx="330" cy="342" r="7" fill="#141820" stroke="#F5A623" stroke-width="1"/><text x="330" y="346" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#F5A623">F</text>
-          <circle cx="50" cy="162" r="7" fill="#141820" stroke="#1A6FFF" stroke-width="1"/><text x="50" y="166" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#1A6FFF">R</text>
-          <circle cx="430" cy="162" r="7" fill="#141820" stroke="#1A6FFF" stroke-width="1"/><text x="430" y="166" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#1A6FFF">R</text>
-          <circle cx="50" cy="258" r="7" fill="#141820" stroke="#1A6FFF" stroke-width="1"/><text x="50" y="262" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#1A6FFF">R</text>
-          <circle cx="430" cy="258" r="7" fill="#141820" stroke="#1A6FFF" stroke-width="1"/><text x="430" y="262" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#1A6FFF">R</text>
-          <circle cx="96" cy="96" r="7" fill="#141820" stroke="#E8293C" stroke-width="1"/><text x="96" y="100" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#E8293C">+</text>
-          <circle cx="384" cy="324" r="7" fill="#141820" stroke="#E8293C" stroke-width="1"/><text x="384" y="328" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#E8293C">+</text>
-        </g>
-        <rect x="178" y="172" width="124" height="36" rx="6" fill="rgba(10,13,20,0.85)" stroke="#2a2e3e" stroke-width="0.5"/>
-        <text x="216" y="191" text-anchor="middle" font-family="Barlow Condensed,sans-serif" font-size="14" font-weight="700" fill="#E8E6DF">2</text>
-        <text x="240" y="191" text-anchor="middle" font-family="Barlow Condensed,sans-serif" font-size="10" fill="#7A7870">—</text>
-        <text x="264" y="191" text-anchor="middle" font-family="Barlow Condensed,sans-serif" font-size="14" font-weight="700" fill="#E8E6DF">1</text>
-        <text x="240" y="203" text-anchor="middle" font-family="Barlow Condensed,sans-serif" font-size="9" fill="#7A7870">62'</text>
-      </svg>
-      <div class="map-overlay">
-        <span class="legend-item"><span class="legend-dot" style="background:#E8293C"></span>Critical</span>
-        <span class="legend-item"><span class="legend-dot" style="background:#F5A623"></span>High</span>
-        <span class="legend-item"><span class="legend-dot" style="background:#00C9A7"></span>Clear</span>
-        <span class="legend-item"><span style="color:#F5A623;font-size:10px">F</span> Food &nbsp;<span style="color:#1A6FFF;font-size:10px">R</span> Restroom &nbsp;<span style="color:#E8293C;font-size:10px">+</span> Medical</span>
+
+  <!-- MAIN -->
+  <div id="main">
+
+    <!-- STAT CARDS -->
+    <div class="stats-row">
+      <div class="stat-card" onclick="openModal('total')">
+        <div class="stat-label">Total Attendance</div>
+        <div><span class="stat-value" id="stat-attend">0</span><span class="stat-unit">/ 52,000</span></div>
+        <div class="stat-delta neutral" id="stat-attend-d">Loading...</div>
+      </div>
+      <div class="stat-card amber" onclick="openModal('queue')">
+        <div class="stat-label">Avg Wait Time</div>
+        <div><span class="stat-value" id="stat-wait">0</span><span class="stat-unit">min</span></div>
+        <div class="stat-delta" id="stat-wait-d">Loading...</div>
+      </div>
+      <div class="stat-card red" onclick="openModal('alerts')">
+        <div class="stat-label">Active Alerts</div>
+        <div><span class="stat-value" id="stat-alerts">0</span><span class="stat-unit">alerts</span></div>
+        <div class="stat-delta" id="stat-alerts-d">Loading...</div>
+      </div>
+      <div class="stat-card green" onclick="openModal('safety')">
+        <div class="stat-label">Safety Score</div>
+        <div><span class="stat-value" id="stat-safety">0</span><span class="stat-unit">/ 100</span></div>
+        <div class="stat-delta" id="stat-safety-d">Loading...</div>
       </div>
     </div>
-  </div>
-  <!-- RIGHT TOP -->
-  <div class="panel right-top">
-    <div class="panel-title">Live Stats</div>
-    <div class="stat-grid">
-      <div class="stat-card highlight"><div class="stat-val" id="stat-attend">67,240</div><div class="stat-label">Attendance</div></div>
-      <div class="stat-card"><div class="stat-val" id="stat-cap">94%</div><div class="stat-label">Capacity</div></div>
-      <div class="stat-card"><div class="stat-val" id="stat-wait" style="color:var(--gold)">11m</div><div class="stat-label">Avg wait</div></div>
-      <div class="stat-card"><div class="stat-val" id="stat-flow">2.4k</div><div class="stat-label">Flow /min</div></div>
-      <div class="stat-card"><div class="stat-val" style="color:var(--red)">3</div><div class="stat-label">Alerts</div></div>
-      <div class="stat-card"><div class="stat-val" style="color:var(--teal)">4</div><div class="stat-label">Staff Out</div></div>
+
+    <!-- MAP + QUEUES -->
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Live Venue Map</div>
+          <span class="panel-badge badge-live">REAL-TIME DENSITY</span>
+        </div>
+        <div id="venue-map">
+          <svg id="map-svg" viewBox="0 0 520 260">
+            <!-- Pitch -->
+            <rect x="110" y="55" width="300" height="150" rx="8" fill="rgba(0,180,80,0.08)" stroke="rgba(0,200,80,0.3)" stroke-width="1"/>
+            <rect x="130" y="75" width="260" height="110" fill="none" stroke="rgba(0,200,80,0.15)" stroke-width="1"/>
+            <circle cx="260" cy="130" r="30" fill="none" stroke="rgba(0,200,80,0.15)" stroke-width="1"/>
+            <line x1="260" y1="55" x2="260" y2="205" stroke="rgba(0,200,80,0.15)" stroke-width="1"/>
+            <text x="260" y="134" text-anchor="middle" font-family="JetBrains Mono" font-size="8" fill="rgba(0,200,80,0.4)">PITCH</text>
+
+            <!-- North Stand -->
+            <rect id="zone-north" class="zone-area density-low" x="110" y="10" width="300" height="38" rx="5"/>
+            <text class="zone-label" x="260" y="24">NORTH STAND</text>
+            <text class="zone-count" id="cnt-north" x="260" y="38" fill="var(--green)">0</text>
+
+            <!-- South Stand -->
+            <rect id="zone-south" class="zone-area density-low" x="110" y="212" width="300" height="38" rx="5"/>
+            <text class="zone-label" x="260" y="226">SOUTH STAND</text>
+            <text class="zone-count" id="cnt-south" x="260" y="240" fill="var(--green)">0</text>
+
+            <!-- East Block -->
+            <rect id="zone-east" class="zone-area density-med" x="418" y="55" width="90" height="150" rx="5"/>
+            <text class="zone-label" x="463" y="124">EAST</text>
+            <text class="zone-count" id="cnt-east" x="463" y="138" fill="var(--amber)">0</text>
+
+            <!-- West Block -->
+            <rect id="zone-west" class="zone-area density-low" x="12" y="55" width="90" height="150" rx="5"/>
+            <text class="zone-label" x="57" y="124">WEST</text>
+            <text class="zone-count" id="cnt-west" x="57" y="138" fill="var(--green)">0</text>
+
+            <!-- VIP -->
+            <rect x="195" y="70" width="130" height="35" rx="4" fill="rgba(168,85,247,0.12)" stroke="rgba(168,85,247,0.4)" stroke-width="1"/>
+            <text x="260" y="90" text-anchor="middle" font-family="JetBrains Mono" font-size="8" fill="var(--purple)">VIP LOUNGE</text>
+            <text class="zone-count" id="cnt-vip" x="260" y="102" fill="var(--purple)">0</text>
+
+            <!-- Divert path (animated) -->
+            <path id="divert-path" class="divert-path" d="M260 10 Q420 10 430 80"/>
+            <path class="divert-path" d="M418 130 Q510 130 510 200 Q510 260 430 260" style="opacity:.4"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- QUEUE PANEL -->
+      <div class="panel" id="queue-panel">
+        <div class="panel-header">
+          <div class="panel-title">Live Queue Times</div>
+          <span class="panel-badge badge-warn" id="halftime-badge">HALFTIME +8min</span>
+        </div>
+        <div class="panel-body" id="queue-body"></div>
+      </div>
+    </div>
+
+    <!-- BOTTOM GRID -->
+    <div class="grid-3">
+      <!-- Stand Occupancy -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Stand Occupancy</div>
+          <span class="panel-badge badge-live">LIVE</span>
+        </div>
+        <div class="panel-body" id="stand-body" style="padding:12px 16px"></div>
+      </div>
+
+      <!-- Exit Prediction -->
+      <div class="panel" id="exit-panel">
+        <div class="panel-header">
+          <div class="panel-title">Exit Predictions</div>
+          <span class="panel-badge badge-ai">AI MODEL</span>
+        </div>
+        <div class="panel-body" id="exit-body" style="padding:12px 16px"></div>
+      </div>
+
+      <!-- AI Diversion -->
+      <div class="panel" id="ai-divert">
+        <div class="panel-header">
+          <div class="panel-title">AI Recommendations</div>
+          <span class="panel-badge badge-ai">GEMINI</span>
+        </div>
+        <div class="panel-body" id="ai-body" style="padding:12px 16px"></div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+
+  <!-- SIDEBAR -->
+  <div id="sidebar">
+    <div id="sidebar-tabs">
+      <div class="stab active" onclick="switchSidebar('alerts')">ALERTS</div>
+      <div class="stab" onclick="switchSidebar('api')">API</div>
+      <div class="stab" onclick="switchSidebar('server')">SERVER</div>
+    </div>
+
+    <!-- Alerts Pane -->
+    <div class="sidebar-pane active" id="pane-alerts">
+      <div id="alerts-list"></div>
+    </div>
+
+    <!-- API Pane -->
+    <div class="sidebar-pane" id="pane-api">
+      <div id="api-console">
+        <div class="console-tabs">
+          <div class="ctab active" onclick="switchConsole('crowd')">/crowd</div>
+          <div class="ctab" onclick="switchConsole('alerts')">/alerts</div>
+          <div class="ctab" onclick="switchConsole('queues')">/queues</div>
+        </div>
+        <div class="console-body" id="console-body"></div>
+      </div>
+    </div>
+
+    <!-- Server Pane -->
+    <div class="sidebar-pane" id="pane-server">
+      <div id="backend-status"></div>
     </div>
   </div>
-  <!-- RIGHT BOTTOM -->
-  <div class="panel right-bottom" style="overflow-y:auto;">
-    <div class="tab-row">
-      <button class="tab-btn active" onclick="showTab('alerts',this)">Alerts</button>
-      <button class="tab-btn" onclick="showTab('ai',this)">AI Recs</button>
+
+</div><!-- /app -->
+
+<!-- MODAL -->
+<div id="modal-overlay" onclick="closeModal(event)">
+  <div id="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="modal-title">Details</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
-    <div class="tab-content active" id="tab-alerts"><div class="alerts-list" id="alerts-list"></div></div>
-    <div class="tab-content" id="tab-ai"><div style="display:flex;flex-direction:column;gap:8px" id="ai-recs"></div></div>
-  </div>
-  <!-- ANNOUNCE -->
-  <div class="announce">
-    <span class="announce-label">Broadcast</span>
-    <div class="announce-ticker"><span class="announce-msg">North Gate 7 crowd density critical — AI redirecting fans to Gates 3 &amp; 11 via SMS &nbsp;|&nbsp; Concourse B restroom queue reduced — 2 extra units deployed &nbsp;|&nbsp; Section 114 medical staff en route — ETA 2 min &nbsp;|&nbsp; East stand food court now open — estimated 5 min wait</span></div>
+    <div class="modal-body" id="modal-body"></div>
   </div>
 </div>
+
 <script>
-  // Connect frontend to backend API
-async function fetchLiveData() {
-  try {
-    const [crowdRes, alertsRes, queuesRes] = await Promise.all([
-      fetch('/api/crowd'),
-      fetch('/api/alerts'),
-      fetch('/api/queues')
-    ]);
-    const crowd = await crowdRes.json();
-    const alerts = await alertsRes.json();
-    const queues = await queuesRes.json();
+/* ================================================================
+   BACKEND ENGINE — ArenaIQ Server (Single-File Edition)
+   Simulates a real REST API with stateful data, request handling,
+   response formatting, and live metrics — all running client-side.
+   In production this maps 1:1 to api/crowd.js, api/alerts.js etc.
+================================================================ */
+class ArenaBackend {
+  constructor() {
+    this.startTime = Date.now();
+    this.requestCount = 0;
+    this.latencies = [];
+    this.state = {
+      matchMinute: 67,
+      score: "2-1",
+      phase: "SECOND_HALF",
+      attendance: 47340
+    };
+    this.zones = [
+      { id:"north", name:"North Stand",  cap:12000, occ:9800,  density:"HIGH"   },
+      { id:"south", name:"South Stand",  cap:12000, occ:6200,  density:"MEDIUM" },
+      { id:"east",  name:"East Block",   cap:10000, occ:8900,  density:"HIGH"   },
+      { id:"west",  name:"West Block",   cap:10000, occ:4100,  density:"LOW"    },
+      { id:"vip",   name:"VIP Lounge",   cap:2000,  occ:1840,  density:"HIGH"   }
+    ];
+    this.queues = [
+      { id:"ga",  loc:"Gate A — Entry",    type:"ENTRY",  wait:14, staff:4, cap:20 },
+      { id:"gb",  loc:"Gate B — Entry",    type:"ENTRY",  wait:6,  staff:5, cap:20 },
+      { id:"fc1", loc:"Food Court 1",      type:"FOOD",   wait:22, staff:6, cap:30 },
+      { id:"fc2", loc:"Food Court 2",      type:"FOOD",   wait:11, staff:5, cap:30 },
+      { id:"rb",  loc:"Restroom Block A",  type:"RESTROOM",wait:5, staff:2, cap:10 },
+      { id:"mer", loc:"Merchandise Store", type:"RETAIL", wait:9,  staff:3, cap:15 }
+    ];
+    this.alertLog = [];
+    this._seedAlerts();
+  }
 
-    // Update crowd stats in your dashboard
-    crowd.data.forEach(zone => {
-      console.log(`${zone.stand}: ${zone.current}/${zone.capacity} (${zone.density})`);
+  /* ── Simulate async fetch with latency ── */
+  async fetch(endpoint, body = null) {
+    const t0 = performance.now();
+    this.requestCount++;
+    await this._delay(12 + Math.random() * 30);
+    const result = this._route(endpoint, body);
+    const lat = Math.round(performance.now() - t0);
+    this.latencies.push(lat);
+    if (this.latencies.length > 50) this.latencies.shift();
+    return { status: 200, latency: lat, data: result };
+  }
+
+  _route(endpoint, body) {
+    this._tick(); // advance simulation state
+    if (endpoint === "/api/crowd")  return this._crowdHandler();
+    if (endpoint === "/api/alerts") return this._alertsHandler();
+    if (endpoint === "/api/queues") return this._queuesHandler();
+    if (endpoint === "/api/status") return this._statusHandler();
+    if (endpoint === "/api/exit")   return this._exitHandler();
+    if (endpoint === "/api/ai")     return this._aiHandler();
+    return { error: "404 Not Found" };
+  }
+
+  _crowdHandler() {
+    return {
+      success: true,
+      timestamp: new Date().toISOString(),
+      match: { minute: this.state.matchMinute, score: this.state.score, phase: this.state.phase },
+      totalAttendance: this.state.attendance,
+      zones: this.zones.map(z => ({
+        id: z.id, name: z.name,
+        capacity: z.cap, current: z.occ,
+        occupancyPct: Math.round(z.occ / z.cap * 100),
+        density: z.density,
+        diversionActive: z.density === "CRITICAL"
+      }))
+    };
+  }
+
+  _alertsHandler() {
+    return {
+      success: true,
+      count: this.alertLog.length,
+      critical: this.alertLog.filter(a => a.type === "CRITICAL").length,
+      alerts: this.alertLog.slice(0, 12)
+    };
+  }
+
+  _queuesHandler() {
+    const halftime = this.state.matchMinute >= 45 && this.state.matchMinute <= 55;
+    return {
+      success: true,
+      halftimeSurge: halftime,
+      predictedSurgeIn: halftime ? null : Math.max(0, 45 - this.state.matchMinute),
+      queues: this.queues.map(q => ({
+        id: q.id, location: q.loc, type: q.type,
+        waitMinutes: q.wait,
+        staffDeployed: q.staff,
+        status: q.wait > 20 ? "CRITICAL" : q.wait > 12 ? "WARNING" : "OK",
+        predictedPeak: q.wait + (halftime ? 8 : 0)
+      }))
+    };
+  }
+
+  _exitHandler() {
+    const min = this.state.matchMinute;
+    return {
+      success: true,
+      currentMinute: min,
+      prediction: {
+        earlyExitIn: Math.max(0, 75 - min),
+        surgeExitAt: 90,
+        estimatedExitVolume: 38000,
+        auxiliaryGatesNeeded: 4,
+        recommendation: min > 70 ? "OPEN_AUX_EXITS" : "STANDBY"
+      },
+      gates: [
+        { id:"G1", name:"Gate 1 — North",   status: min > 70 ? "OPEN" : "STANDBY", eta: Math.max(0,75-min)+"min" },
+        { id:"G2", name:"Gate 2 — South",   status:"OPEN",    eta:"Now"   },
+        { id:"G3", name:"Gate 3 — East",    status:"STANDBY", eta:"8min"  },
+        { id:"G4", name:"Aux Exit West",    status: min > 75 ? "OPEN" : "STANDBY", eta: Math.max(0,75-min)+"min" }
+      ]
+    };
+  }
+
+  _aiHandler() {
+    return {
+      success: true,
+      model: "gemini-1.5-pro",
+      recommendations: [
+        { id:1, confidence:94, action:"REDIRECT_CROWD",  text:"Redirect 1,200 fans from North Stand Gate 3 via internal walkway C — reduces bottleneck by est. 68%", impact:"HIGH" },
+        { id:2, confidence:87, action:"STAFF_DEPLOY",    text:"Deploy 3 additional staff to Food Court 1 — predicted wait time drops from 22min → 9min", impact:"HIGH" },
+        { id:3, confidence:79, action:"OPEN_AUX_EXIT",   text:"Pre-open Auxiliary Gate West in 12 minutes based on scoreline trajectory and historical exit model", impact:"MEDIUM" },
+        { id:4, confidence:72, action:"ANNOUNCEMENT",    text:"Broadcast restroom availability at Block C to reduce Block A queue by distributing flow", impact:"LOW" }
+      ]
+    };
+  }
+
+  _statusHandler() {
+    const uptime = Math.floor((Date.now() - this.startTime) / 1000);
+    const avgLat = this.latencies.length
+      ? Math.round(this.latencies.reduce((a,b) => a+b, 0) / this.latencies.length)
+      : 0;
+    return {
+      success: true,
+      service: "ArenaIQ Backend",
+      version: "1.4.2",
+      uptime: uptime,
+      uptimeStr: this._formatUptime(uptime),
+      requestsHandled: this.requestCount,
+      avgLatencyMs: avgLat,
+      endpoints: ["/api/crowd","/api/alerts","/api/queues","/api/exit","/api/ai","/api/status"],
+      deployment: "Vercel Serverless",
+      region: "ap-south-1",
+      nodeVersion: "18.x",
+      memoryUsed: Math.floor(18 + Math.random() * 4) + "MB / 256MB"
+    };
+  }
+
+  _tick() {
+    // Advance match clock
+    if (Math.random() < 0.3) this.state.matchMinute = Math.min(90, this.state.matchMinute + 1);
+    // Fluctuate crowds
+    this.zones.forEach(z => {
+      z.occ = Math.max(0, Math.min(z.cap, z.occ + Math.floor((Math.random() - 0.45) * 80)));
+      const pct = z.occ / z.cap;
+      z.density = pct > 0.9 ? "CRITICAL" : pct > 0.75 ? "HIGH" : pct > 0.5 ? "MEDIUM" : "LOW";
     });
+    this.state.attendance = this.zones.reduce((s, z) => s + z.occ, 0);
+    // Fluctuate queues
+    this.queues.forEach(q => {
+      q.wait = Math.max(1, Math.min(q.cap, q.wait + Math.floor((Math.random() - 0.45) * 3)));
+    });
+    // Possibly push a new alert
+    if (Math.random() < 0.15) this._pushAlert();
+  }
 
-    console.log('Live alerts:', alerts.alerts.length);
-    console.log('Queue data loaded:', queues.queues.length, 'locations');
-  } catch (err) {
-    console.log('API fetch error:', err);
+  _seedAlerts() {
+    const seeds = [
+      { type:"CRITICAL", zone:"North Stand Gate 3", msg:"Crowd density at 91% — diversion route activated automatically" },
+      { type:"WARNING",  zone:"Food Court 1",        msg:"Wait time 22min — 8min above threshold. Staff deployment recommended" },
+      { type:"AI",       zone:"AI Engine",           msg:"Gemini: Redirect 1,200 fans via walkway C — 94% confidence intervention" },
+      { type:"INFO",     zone:"Exit Gate 1",         msg:"Early exit prediction: surge in 8min — pre-opening auxiliary gates" },
+      { type:"WARNING",  zone:"East Block",          msg:"Occupancy 89% — monitoring for escalation to CRITICAL status" }
+    ];
+    seeds.forEach((s, i) => {
+      this.alertLog.push({ ...s, id: i+1, timestamp: new Date(Date.now() - (seeds.length - i) * 90000).toISOString() });
+    });
+  }
+
+  _pushAlert() {
+    const templates = [
+      { type:"INFO",    zone:"Broadcast System", msg:"Venue-wide SMS dispatched to 2,400 fans in North Stand sector 3-7" },
+      { type:"WARNING", zone:"Gate B",            msg:"Gate B queue rising — predicted 14min wait in 5 minutes" },
+      { type:"AI",      zone:"AI Engine",         msg:"Gemini updated exit surge model — now forecasting +2,100 early exits" },
+      { type:"INFO",    zone:"Security",          msg:"Security patrol deployed to West Block walkway C per AI recommendation" }
+    ];
+    const t = templates[Math.floor(Math.random() * templates.length)];
+    this.alertLog.unshift({ ...t, id: this.alertLog.length + 1, timestamp: new Date().toISOString() });
+    if (this.alertLog.length > 20) this.alertLog.pop();
+  }
+
+  _delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+  _formatUptime(s) {
+    const h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = s%60;
+    return `${h}h ${m}m ${sec}s`;
   }
 }
 
-// Fetch on load and refresh every 30 seconds
-fetchLiveData();
-setInterval(fetchLiveData, 30000);
-const zones=[
-  {name:'North Stand',cap:'18,400',pct:96,color:'#E8293C',status:'crit',label:'Critical'},
-  {name:'South Stand',cap:'18,200',pct:61,color:'#00C9A7',status:'ok',label:'Clear'},
-  {name:'East Stand',cap:'15,600',pct:82,color:'#F5A623',status:'warn',label:'High'},
-  {name:'West Stand',cap:'15,040',pct:58,color:'#00C9A7',status:'ok',label:'Clear'},
-  {name:'Concourse A',cap:'8,000',pct:88,color:'#F5A623',status:'warn',label:'High'},
-  {name:'Concourse B',cap:'8,000',pct:45,color:'#00C9A7',status:'ok',label:'Clear'},
-];
-const zl=document.getElementById('zone-list');
-zones.forEach((z,i)=>{zl.innerHTML+=`<div class="zone-item${i===0?' active':''}" style="--zone-color:${z.color}"><div class="zone-header"><div><div class="zone-name">${z.name}</div><div class="zone-cap">${z.pct}% of ${z.cap}</div></div><span class="status-pill ${z.status}">${z.label}</span></div><div class="zone-bar-track"><div class="zone-bar-fill" style="width:${z.pct}%;background:${z.color}"></div></div></div>`;});
-const waits=[
-  {name:'Gate 7 N',mins:18,color:'#E8293C'},
-  {name:'Concession A3',mins:14,color:'#F5A623'},
-  {name:'Gate 3 S',mins:4,color:'#00C9A7'},
-  {name:'Restroom B',mins:7,color:'#F5A623'},
-  {name:'Gate 11 W',mins:3,color:'#00C9A7'},
-  {name:'Merch Stand 2',mins:9,color:'#F5A623'},
-];
-const wl=document.getElementById('wait-list');
-waits.forEach(w=>{const pct=Math.round(w.mins/20*100);wl.innerHTML+=`<div class="wait-row"><div class="wait-name">${w.name}</div><div class="wait-bar-bg"><div class="wait-bar-inner" style="width:${pct}%;background:${w.color}"></div></div><div class="wait-mins" style="color:${w.color}">${w.mins}m</div></div>`;});
-const alerts=[
-  {msg:'Gate 7 — overcrowding detected, capacity at 96%',zone:'North',color:'#E8293C',time:"63'"},
-  {msg:'Concourse A food queue exceeded 14 min threshold',zone:'East',color:'#F5A623',time:"61'"},
-  {msg:'Section 114 — medical assistance requested',zone:'North',color:'#E8293C',time:"59'"},
-  {msg:'Parking lot D — exit queue forming, advise early exit',zone:'Outer',color:'#F5A623',time:"55'"},
-  {msg:'Restroom block B2 operational — queue reduced',zone:'South',color:'#00C9A7',time:"52'"},
-];
-const al=document.getElementById('alerts-list');
-alerts.forEach(a=>{al.innerHTML+=`<div class="alert-item" style="--alert-color:${a.color}">${a.msg}<div class="alert-meta">${a.zone} · ${a.time}</div></div>`;});
-const aiRecs=[
-  {icon:'→',title:'Redirect via Gate 3 & 11',desc:'AI-generated SMS sent to 2,140 ticket holders in North Stand aisle 4–8.',color:'#E8293C'},
-  {icon:'↑',title:'Deploy 3 extra staff Concourse A',desc:'Predicted queue spike in next 8 min based on halftime pattern.',color:'#F5A623'},
-  {icon:'◎',title:'Open auxiliary exit E2',desc:"Early-exit model forecasts 6,000+ fans leaving at 75'. Pre-open now.",color:'#1A6FFF'},
-  {icon:'✓',title:'South Concourse nominal',desc:'No action needed. Density stable at 61%.',color:'#00C9A7'},
-];
-const ar=document.getElementById('ai-recs');
-aiRecs.forEach(r=>{ar.innerHTML+=`<div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid ${r.color};border-radius:6px;padding:10px 12px"><div style="font-size:12px;font-weight:600;color:${r.color};margin-bottom:3px">${r.icon} ${r.title}</div><div style="font-size:11px;color:var(--muted);line-height:1.5">${r.desc}</div></div>`;});
-function showTab(id,btn){document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.getElementById('tab-'+id).classList.add('active');btn.classList.add('active');}
-function tick(){const d=(Math.random()>0.5?1:-1)*Math.floor(Math.random()*3);const c=parseInt(document.getElementById('stat-attend').textContent.replace(',',''));document.getElementById('stat-attend').textContent=(c+d).toLocaleString();document.getElementById('stat-wait').textContent=(9+Math.floor(Math.random()*5))+'m';document.getElementById('stat-flow').textContent=(2.1+Math.random()*0.7).toFixed(1)+'k';}
-setInterval(tick,7000);
+/* ================================================================
+   FRONTEND ENGINE — Data binding, rendering, interactions
+================================================================ */
+const backend = new ArenaBackend();
+
+// ── Data cache ──
+let cache = { crowd: null, alerts: null, queues: null, exit: null, ai: null };
+
+// ── Fetch all data from backend ──
+async function fetchAll() {
+  const [cr, al, qu, ex, ai] = await Promise.all([
+    backend.fetch("/api/crowd"),
+    backend.fetch("/api/alerts"),
+    backend.fetch("/api/queues"),
+    backend.fetch("/api/exit"),
+    backend.fetch("/api/ai")
+  ]);
+  cache.crowd  = cr.data;
+  cache.alerts = al.data;
+  cache.queues = qu.data;
+  cache.exit   = ex.data;
+  cache.ai     = ai.data;
+  renderAll();
+}
+
+function renderAll() {
+  renderStats();
+  renderMap();
+  renderQueues();
+  renderStands();
+  renderExits();
+  renderAI();
+  renderAlerts();
+  renderTicker();
+}
+
+// ── Stats ──
+function renderStats() {
+  const c = cache.crowd, q = cache.queues, a = cache.alerts;
+  if (!c || !q || !a) return;
+
+  const attendPct = Math.round(c.totalAttendance / 52000 * 100);
+  setEl("stat-attend", c.totalAttendance.toLocaleString());
+  setDelta("stat-attend-d", `${attendPct}% capacity`, attendPct > 85 ? "up" : "neutral");
+
+  const avgWait = Math.round(q.queues.reduce((s, x) => s + x.waitMinutes, 0) / q.queues.length);
+  setEl("stat-wait", avgWait);
+  setDelta("stat-wait-d", avgWait > 15 ? "▲ Above normal" : "▼ Normal range", avgWait > 15 ? "up" : "down");
+
+  setEl("stat-alerts", a.count);
+  setDelta("stat-alerts-d", `${a.critical} critical`, a.critical > 0 ? "up" : "neutral");
+
+  const crit = c.zones.filter(z => z.density === "CRITICAL").length;
+  const safety = Math.max(40, 100 - (crit * 20) - (a.critical * 5) - (avgWait > 20 ? 10 : 0));
+  setEl("stat-safety", safety);
+  setDelta("stat-safety-d", crit > 0 ? "▼ Zones in critical" : "▲ All zones normal", crit > 0 ? "up" : "down");
+}
+
+// ── Venue map ──
+function renderMap() {
+  const c = cache.crowd;
+  if (!c) return;
+  c.zones.forEach(z => {
+    const rect = document.getElementById(`zone-${z.id}`);
+    const cnt  = document.getElementById(`cnt-${z.id}`);
+    if (!rect || !cnt) return;
+    rect.className = `zone-area density-${z.density.toLowerCase()}`;
+    const col = z.density === "CRITICAL" ? "var(--red)" : z.density === "HIGH" ? "var(--amber)" : "var(--green)";
+    cnt.textContent = z.current.toLocaleString();
+    cnt.style.fill  = col;
+    rect.onclick = () => openZoneModal(z);
+  });
+}
+
+// ── Queues ──
+function renderQueues() {
+  const q = cache.queues;
+  if (!q) return;
+  const html = q.queues.map(qi => {
+    const cls = qi.status === "CRITICAL" ? "bad" : qi.status === "WARNING" ? "warn" : "ok";
+    const pct = Math.round(qi.waitMinutes / 30 * 100);
+    return `<div class="queue-row">
+      <div class="queue-meta">
+        <span class="queue-name">${qi.location}</span>
+        <span class="queue-time ${cls}">${qi.waitMinutes}min</span>
+      </div>
+      <div class="queue-bar-bg"><div class="queue-bar-fill fill-${cls}" style="width:${pct}%"></div></div>
+      ${qi.predictedPeak > qi.waitMinutes + 5 ? `<div class="queue-predict">▲ Predicted: ${qi.predictedPeak}min at halftime</div>` : ""}
+    </div>`;
+  }).join("");
+  document.getElementById("queue-body").innerHTML = html;
+}
+
+// ── Stands ──
+function renderStands() {
+  const c = cache.crowd;
+  if (!c) return;
+  const html = c.zones.map(z => {
+    const pct = z.occupancyPct;
+    const col = pct > 90 ? "var(--red)" : pct > 75 ? "var(--amber)" : "var(--green)";
+    const tcol = pct > 90 ? "var(--red)" : pct > 75 ? "var(--amber)" : "var(--green)";
+    return `<div class="stand-row">
+      <span class="stand-name">${z.name}</span>
+      <div class="stand-bar-wrap"><div class="stand-bar" style="width:${pct}%;background:${col}"></div></div>
+      <span class="stand-pct" style="color:${tcol}">${pct}%</span>
+    </div>`;
+  }).join("");
+  document.getElementById("stand-body").innerHTML = html;
+}
+
+// ── Exits ──
+function renderExits() {
+  const e = cache.exit;
+  if (!e) return;
+  const icons = { "OPEN":"🟢", "STANDBY":"🟡" };
+  const html = e.gates.map(g => {
+    const open = g.status === "OPEN";
+    return `<div class="exit-row">
+      <div class="exit-icon">${icons[g.status] || "⚪"}</div>
+      <div class="exit-info">
+        <div class="exit-name">${g.name}</div>
+        <div class="exit-status">${g.status} · ETA: ${g.eta}</div>
+      </div>
+      <button class="exit-btn ${open ? 'open' : ''}" onclick="toggleGate('${g.id}')">${open ? 'CLOSE' : 'OPEN'}</button>
+    </div>`;
+  }).join("");
+  const pred = e.prediction;
+  const html2 = `<div style="padding:8px 0 4px;font-family:var(--font-mono);font-size:9px;color:var(--text2)">
+    SURGE FORECAST: <span style="color:var(--amber)">${pred.estimatedExitVolume.toLocaleString()} fans @ min 90</span>
+  </div>` + html;
+  document.getElementById("exit-body").innerHTML = html2;
+}
+
+// ── AI Recs ──
+function renderAI() {
+  const ai = cache.ai;
+  if (!ai) return;
+  const html = ai.recommendations.map(r => {
+    const col = r.impact === "HIGH" ? "var(--red)" : r.impact === "MEDIUM" ? "var(--amber)" : "var(--cyan)";
+    return `<div class="ai-rec">
+      <div class="ai-rec-head">
+        <span class="ai-chip">${r.action.replace(/_/g,' ')}</span>
+        <span class="ai-conf" style="margin-left:auto;color:${col}">${r.confidence}% conf</span>
+      </div>
+      <div class="ai-text">${r.text}</div>
+      <div class="ai-impact">IMPACT: ${r.impact}</div>
+    </div>`;
+  }).join("");
+  document.getElementById("ai-body").innerHTML = html;
+}
+
+// ── Alerts ──
+function renderAlerts() {
+  const a = cache.alerts;
+  if (!a) return;
+  const typeMap = { CRITICAL:"crit", WARNING:"warn", INFO:"info", AI:"ai" };
+  const html = a.alerts.map(al => {
+    const cls = typeMap[al.type] || "info";
+    const time = new Date(al.timestamp).toLocaleTimeString("en-IN", { hour:"2-digit", minute:"2-digit" });
+    return `<div class="alert-item ${cls}">
+      <div class="alert-type">${al.type} <span class="alert-time">${time}</span></div>
+      <div class="alert-msg">${al.msg}</div>
+      <div class="alert-zone">📍 ${al.zone}</div>
+    </div>`;
+  }).join("");
+  document.getElementById("alerts-list").innerHTML = html || "<div style='padding:16px;color:var(--text2);font-size:11px'>No active alerts</div>";
+}
+
+// ── Ticker ──
+function renderTicker() {
+  const a = cache.alerts;
+  if (!a) return;
+  const items = a.alerts.map(al => {
+    const cls = al.type === "CRITICAL" ? "crit" : al.type === "WARNING" ? "warn" : "";
+    return `<span class="ticker-item ${cls}">[${al.type}] ${al.zone}: ${al.msg}</span>`;
+  }).join("");
+  const doubled = items + items;
+  const el = document.getElementById("ticker-scroll");
+  if (el) el.innerHTML = doubled;
+}
+
+/* ================================================================
+   API CONSOLE RENDERER
+================================================================ */
+const endpointDefs = {
+  crowd:  { method:"GET",  path:"/api/crowd",  desc:"Returns real-time crowd density for all venue zones including occupancy %, density level, and diversion status." },
+  alerts: { method:"GET",  path:"/api/alerts", desc:"Returns the live alert log with all CRITICAL, WARNING, INFO and AI-generated alert events." },
+  queues: { method:"GET",  path:"/api/queues", desc:"Returns queue wait times for all venue locations with halftime surge prediction." }
+};
+
+let activeConsole = "crowd";
+
+function renderConsole() {
+  const def = endpointDefs[activeConsole];
+  const html = `<div class="api-endpoint">
+    <div class="endpoint-head">
+      <span class="method get">${def.method}</span>
+      <span class="endpoint-path">${def.path}</span>
+    </div>
+    <div class="endpoint-desc">${def.desc}</div>
+    <button class="try-btn" onclick="tryEndpoint('${activeConsole}')">▶ EXECUTE REQUEST</button>
+    <div class="api-response" id="api-response-box"></div>
+  </div>`;
+  document.getElementById("console-body").innerHTML = html;
+}
+
+async function tryEndpoint(key) {
+  const def = endpointDefs[key];
+  const box = document.getElementById("api-response-box");
+  box.classList.add("show");
+  box.textContent = "Fetching...";
+  const res = await backend.fetch(def.path);
+  box.innerHTML = `<span style="color:var(--text2)">// ${def.path} — ${res.latency}ms — HTTP 200</span>\n` + syntaxHL(res.data);
+}
+
+function syntaxHL(obj) {
+  return JSON.stringify(obj, null, 2)
+    .replace(/"([^"]+)":/g, '<span class="json-key">"$1"</span>:')
+    .replace(/: "([^"]+)"/g, ': <span class="json-str">"$1"</span>')
+    .replace(/: (\d+\.?\d*)/g, ': <span class="json-num">$1</span>')
+    .replace(/: (true|false)/g, ': <span class="json-bool">$1</span>');
+}
+
+/* ================================================================
+   BACKEND STATUS RENDERER
+================================================================ */
+async function renderBackendStatus() {
+  const res = await backend.fetch("/api/status");
+  const s = res.data;
+  const rows = [
+    ["Service",         s.service,          "ok"],
+    ["Version",         s.version,          "ok"],
+    ["Status",          "● RUNNING",        "ok"],
+    ["Uptime",          s.uptimeStr,        "ok"],
+    ["Deployment",      s.deployment,       "ok"],
+    ["Region",          s.region,           "ok"],
+    ["Node.js",         s.nodeVersion,      "ok"],
+    ["Requests",        s.requestsHandled,  "ok"],
+    ["Avg Latency",     s.avgLatencyMs + "ms", s.avgLatencyMs > 100 ? "warn" : "ok"],
+    ["Memory",          s.memoryUsed,       "ok"],
+    ["Endpoints",       s.endpoints.length, "ok"]
+  ];
+  const html = rows.map(r => `<div class="bs-row">
+    <span class="bs-name">${r[0]}</span>
+    <span class="bs-val ${r[2]} bs-ping">${r[1]}</span>
+  </div>`).join("");
+  const epHtml = `<div style="padding:8px 10px;font-family:var(--font-mono);font-size:9px;color:var(--text2)">
+    ${s.endpoints.map(e => `<span style="color:var(--cyan);margin-right:10px">${e}</span>`).join("")}
+  </div>`;
+  document.getElementById("backend-status").innerHTML = html + epHtml;
+}
+
+/* ================================================================
+   UI CONTROLLERS
+================================================================ */
+function switchView(v) {
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.textContent.toLowerCase().includes(v.split("").slice(0,3).join(""))));
+  if (v === "api") switchSidebar("api");
+  if (v === "backend") switchSidebar("server");
+  if (v === "ops") switchSidebar("alerts");
+}
+
+function switchSidebar(tab) {
+  document.querySelectorAll(".stab").forEach(b => b.classList.remove("active"));
+  document.querySelectorAll(".sidebar-pane").forEach(p => p.classList.remove("active"));
+  document.querySelector(`.stab[onclick*="${tab}"]`).classList.add("active");
+  document.getElementById(`pane-${tab}`).classList.add("active");
+  if (tab === "api") renderConsole();
+  if (tab === "server") renderBackendStatus();
+}
+
+function switchConsole(key) {
+  activeConsole = key;
+  document.querySelectorAll(".ctab").forEach(t => t.classList.toggle("active", t.textContent.startsWith("/" + key.slice(0,5))));
+  renderConsole();
+}
+
+function toggleGate(id) { fetchAll(); }
+
+// ── Modals ──
+const modalContent = {
+  total:  () => {
+    const c = cache.crowd;
+    return { title:"Attendance Details", rows:[
+      ["Total Attendance", c.totalAttendance.toLocaleString()],
+      ["Venue Capacity", "52,000"],
+      ["Occupancy", Math.round(c.totalAttendance/52000*100) + "%"],
+      ["Match", `${c.match.phase.replace("_"," ")} — Min ${c.match.minute}`],
+      ["Score", c.match.score],
+      ["Zones Monitored", c.zones.length]
+    ]};
+  },
+  queue:  () => {
+    const q = cache.queues;
+    const avg = Math.round(q.queues.reduce((s,x) => s+x.waitMinutes,0)/q.queues.length);
+    return { title:"Queue Summary", rows:[
+      ["Avg Wait Time", avg + " min"],
+      ["Longest Queue", Math.max(...q.queues.map(x=>x.waitMinutes)) + " min"],
+      ["Shortest Queue", Math.min(...q.queues.map(x=>x.waitMinutes)) + " min"],
+      ["Halftime Surge", q.halftimeSurge ? "ACTIVE" : "Pending"],
+      ["Surge ETA", q.predictedSurgeIn ? q.predictedSurgeIn + " min" : "Now"],
+      ["Locations", q.queues.length]
+    ]};
+  },
+  alerts: () => {
+    const a = cache.alerts;
+    return { title:"Alert Summary", rows:[
+      ["Total Alerts", a.count],
+      ["Critical", a.critical],
+      ["Warnings", a.alerts.filter(x=>x.type==="WARNING").length],
+      ["AI Alerts", a.alerts.filter(x=>x.type==="AI").length],
+      ["Info", a.alerts.filter(x=>x.type==="INFO").length],
+      ["Latest", new Date(a.alerts[0]?.timestamp).toLocaleTimeString("en-IN")]
+    ]};
+  },
+  safety: () => {
+    const c = cache.crowd;
+    const crit = c.zones.filter(z=>z.density==="CRITICAL").length;
+    return { title:"Safety Overview", rows:[
+      ["Critical Zones", crit],
+      ["High Density Zones", c.zones.filter(z=>z.density==="HIGH").length],
+      ["Normal Zones", c.zones.filter(z=>z.density==="LOW"||z.density==="MEDIUM").length],
+      ["Diversion Active", c.zones.filter(z=>z.diversionActive).length + " zones"],
+      ["Emergency Protocol", crit > 2 ? "ACTIVE" : "Standby"],
+      ["AI Confidence", "94%"]
+    ]};
+  }
+};
+
+function openModal(key) {
+  if (!cache.crowd) return;
+  const def = modalContent[key]?.();
+  if (!def) return;
+  document.getElementById("modal-title").textContent = def.title;
+  document.getElementById("modal-body").innerHTML = def.rows.map(r =>
+    `<div class="modal-stat"><span class="mstat-label">${r[0]}</span><span class="mstat-val">${r[1]}</span></div>`
+  ).join("");
+  document.getElementById("modal-overlay").classList.add("show");
+}
+
+function openZoneModal(z) {
+  document.getElementById("modal-title").textContent = z.name;
+  document.getElementById("modal-body").innerHTML = [
+    ["Occupancy", z.current.toLocaleString() + " / " + z.capacity.toLocaleString()],
+    ["Fill Rate", z.occupancyPct + "%"],
+    ["Density Level", z.density],
+    ["Diversion Active", z.diversionActive ? "YES — Route activated" : "No"],
+    ["Status", z.density === "CRITICAL" ? "⚠ Intervention required" : z.density === "HIGH" ? "Monitoring closely" : "Normal"]
+  ].map(r => `<div class="modal-stat"><span class="mstat-label">${r[0]}</span><span class="mstat-val">${r[1]}</span></div>`).join("");
+  document.getElementById("modal-overlay").classList.add("show");
+}
+
+function closeModal(e) {
+  if (!e || e.target === document.getElementById("modal-overlay")) {
+    document.getElementById("modal-overlay").classList.remove("show");
+  }
+}
+
+// ── Clock ──
+function updateClock() {
+  document.getElementById("clock").textContent = new Date().toLocaleTimeString("en-IN", { hour12:false });
+}
+
+// ── Helpers ──
+function setEl(id, val) { const e = document.getElementById(id); if(e) e.textContent = val; }
+function setDelta(id, text, cls) {
+  const e = document.getElementById(id);
+  if (!e) return;
+  e.textContent = text;
+  e.className = `stat-delta ${cls}`;
+}
+
+/* ================================================================
+   BOOT
+================================================================ */
+(async () => {
+  updateClock();
+  setInterval(updateClock, 1000);
+  await fetchAll();
+  setInterval(fetchAll, 8000);       // live refresh every 8s
+  setInterval(renderBackendStatus, 15000); // server stats every 15s
+})();
 </script>
 </body>
 </html>
