@@ -293,7 +293,92 @@ body::before{
 ::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 
-/* ── MODAL ── */
+/* ══════════════════════════════════════════
+   MOBILE RESPONSIVE — phones & small screens
+══════════════════════════════════════════ */
+@media(max-width:768px){
+  html{font-size:13px}
+
+  /* topbar: hide subtitle and nav buttons, keep logo + status */
+  .logo-sub{display:none}
+  .topbar-center{display:none}
+  .live-badge{display:none}
+  #topbar{padding:0 12px;height:48px}
+  .logo-text{font-size:18px}
+
+  /* app: single column, no sidebar in grid */
+  #app{
+    display:flex;flex-direction:column;
+    height:auto;min-height:calc(100vh - 48px)
+  }
+
+  /* ticker smaller */
+  #ticker-bar{height:28px}
+  .ticker-item{font-size:9px;padding:0 14px}
+
+  /* main: full width, tighter padding */
+  #main{padding:10px;gap:10px;overflow-y:visible}
+
+  /* stat cards: 2 columns on phone */
+  .stats-row{grid-template-columns:1fr 1fr;gap:8px}
+  .stat-value{font-size:22px}
+  .stat-card{padding:10px 12px}
+
+  /* map + queue: stack vertically */
+  .grid-2{grid-template-columns:1fr}
+  #map-svg{height:200px}
+
+  /* bottom 3 grid: stack vertically */
+  .grid-3{grid-template-columns:1fr}
+
+  /* sidebar: move to bottom as a tab bar */
+  #sidebar{
+    border-left:none;border-top:1px solid var(--border2);
+    width:100%;max-height:360px
+  }
+  #sidebar-tabs{position:sticky;top:0;z-index:10;background:var(--bg2)}
+  .stab{padding:12px 0;font-size:10px}
+
+  /* queue panel full width */
+  #queue-panel .panel-body{padding:10px 12px}
+
+  /* panel headers smaller */
+  .panel-title{font-size:12px}
+  .panel-badge{font-size:8px;padding:2px 6px}
+
+  /* modal full screen on phone */
+  #modal{width:95vw;max-height:90vh}
+}
+
+@media(max-width:400px){
+  .stats-row{grid-template-columns:1fr 1fr}
+  .stat-value{font-size:20px}
+  .logo-text{font-size:16px}
+}
+
+/* ── MOBILE BOTTOM NAV ── */
+#mobile-nav{
+  display:none;position:fixed;bottom:0;left:0;right:0;
+  background:var(--bg2);border-top:1px solid var(--border2);
+  height:52px;z-index:150;
+  display:none;align-items:center;justify-content:space-around
+}
+.mnav{
+  flex:1;height:100%;background:none;border:none;
+  color:var(--text2);font-family:var(--font-mono);font-size:9px;
+  letter-spacing:.5px;cursor:pointer;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:2px;transition:color .2s
+}
+.mnav.active{color:var(--cyan)}
+.mnav:active{opacity:.7}
+@media(max-width:768px){
+  #mobile-nav{display:flex}
+  body{padding-bottom:52px}
+  /* hide desktop sidebar tabs on mobile since bottom nav replaces them */
+  #sidebar-tabs{display:none}
+}
+
+
 #modal-overlay{
   display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;
   align-items:center;justify-content:center
@@ -499,6 +584,14 @@ body::before{
   </div>
 
 </div><!-- /app -->
+
+<!-- MOBILE BOTTOM NAV -->
+<div id="mobile-nav">
+  <button class="mnav active" onclick="mobileTab('ops')">🏟 OPS</button>
+  <button class="mnav" onclick="mobileTab('alerts')">🔔 ALERTS</button>
+  <button class="mnav" onclick="mobileTab('api')">⚡ API</button>
+  <button class="mnav" onclick="mobileTab('server')">🖥 SERVER</button>
+</div>
 
 <!-- MODAL -->
 <div id="modal-overlay" onclick="closeModal(event)">
@@ -995,6 +1088,28 @@ function switchConsole(key) {
 }
 
 function toggleGate(id) { fetchAll(); }
+
+// ── Mobile tab switcher ──
+function mobileTab(tab) {
+  document.querySelectorAll(".mnav").forEach(b => b.classList.remove("active"));
+  document.querySelector(`.mnav[onclick*="${tab}"]`).classList.add("active");
+  if (tab === "ops") {
+    document.getElementById("main").style.display = "flex";
+    document.getElementById("sidebar").style.display = "none";
+  } else {
+    document.getElementById("main").style.display = "none";
+    document.getElementById("sidebar").style.display = "flex";
+    switchSidebar(tab === "alerts" ? "alerts" : tab === "api" ? "api" : "server");
+  }
+}
+// On desktop always show both
+function ensureLayout() {
+  if (window.innerWidth > 768) {
+    document.getElementById("main").style.display = "";
+    document.getElementById("sidebar").style.display = "";
+  }
+}
+window.addEventListener("resize", ensureLayout);
 
 // ── Modals ──
 const modalContent = {
