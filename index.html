@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>ArenaIQ — Smart Venue Intelligence</title>
+<title>ArenaIQ — Eden Gardens Venue Intelligence</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
 :root {
@@ -409,7 +409,7 @@ body::before{
     <div class="logo-icon">🏟</div>
     <div>
       <div class="logo-text">Arena<span>IQ</span></div>
-      <div class="logo-sub">VENUE INTELLIGENCE SYSTEM</div>
+      <div class="logo-sub">EDEN GARDENS · KKR vs MI · IPL 2026</div>
     </div>
   </div>
   <div class="topbar-center">
@@ -418,6 +418,8 @@ body::before{
     <button class="tab-btn" onclick="switchView('backend')">BACKEND STATUS</button>
   </div>
   <div class="topbar-right">
+    <div style="font-family:var(--font-mono);font-size:10px;color:var(--amber);letter-spacing:1px" id="match-info">MIN 67 · 2-1</div>
+    <div style="width:1px;height:16px;background:var(--border2)"></div>
     <div class="status-dot"></div>
     <div class="live-badge">LIVE</div>
     <div id="clock">--:--:--</div>
@@ -426,6 +428,13 @@ body::before{
 
 <!-- APP -->
 <div id="app">
+
+  <!-- GEMINI AI STRIP -->
+  <div style="grid-column:1/-1;background:rgba(168,85,247,0.08);border-bottom:1px solid rgba(168,85,247,0.25);height:28px;display:flex;align-items:center;padding:0 16px;gap:12px">
+    <span style="font-family:var(--font-mono);font-size:9px;background:rgba(168,85,247,0.25);color:#c084fc;padding:2px 8px;border-radius:3px;letter-spacing:1px">GEMINI 1.5 PRO</span>
+    <span style="font-family:var(--font-mono);font-size:9px;color:#a855f7;letter-spacing:.5px" id="gemini-strip">AI model active — processing venue data</span>
+    <span style="margin-left:auto;font-family:var(--font-mono);font-size:9px;color:rgba(168,85,247,0.5)">CONFIDENCE: <span style="color:#c084fc" id="gemini-conf">94%</span></span>
+  </div>
 
   <!-- TICKER -->
   <div id="ticker-bar">
@@ -442,7 +451,7 @@ body::before{
     <div class="stats-row">
       <div class="stat-card" onclick="openModal('total')">
         <div class="stat-label">Total Attendance</div>
-        <div><span class="stat-value" id="stat-attend">0</span><span class="stat-unit">/ 52,000</span></div>
+        <div><span class="stat-value" id="stat-attend">0</span><span class="stat-unit">/ 66,000</span></div>
         <div class="stat-delta neutral" id="stat-attend-d">Loading...</div>
       </div>
       <div class="stat-card amber" onclick="openModal('queue')">
@@ -456,8 +465,8 @@ body::before{
         <div class="stat-delta" id="stat-alerts-d">Loading...</div>
       </div>
       <div class="stat-card green" onclick="openModal('safety')">
-        <div class="stat-label">Safety Score</div>
-        <div><span class="stat-value" id="stat-safety">0</span><span class="stat-unit">/ 100</span></div>
+        <div class="stat-label">Safety Index</div>
+        <div><span class="stat-value" id="stat-safety">0</span><span class="stat-unit">/ 10</span></div>
         <div class="stat-delta" id="stat-safety-d">Loading...</div>
       </div>
     </div>
@@ -620,14 +629,14 @@ class ArenaBackend {
       matchMinute: 67,
       score: "2-1",
       phase: "SECOND_HALF",
-      attendance: 47340
+      attendance: 58420
     };
     this.zones = [
-      { id:"north", name:"North Stand",  cap:12000, occ:9800,  density:"HIGH"   },
-      { id:"south", name:"South Stand",  cap:12000, occ:6200,  density:"MEDIUM" },
-      { id:"east",  name:"East Block",   cap:10000, occ:8900,  density:"HIGH"   },
-      { id:"west",  name:"West Block",   cap:10000, occ:4100,  density:"LOW"    },
-      { id:"vip",   name:"VIP Lounge",   cap:2000,  occ:1840,  density:"HIGH"   }
+      { id:"north", name:"North Stand",  cap:16000, occ:15200, density:"CRITICAL" },
+      { id:"south", name:"South Stand",  cap:16000, occ:10800, density:"MEDIUM"   },
+      { id:"east",  name:"East Block",   cap:14000, occ:13300, density:"HIGH"     },
+      { id:"west",  name:"West Block",   cap:14000, occ:8600,  density:"LOW"      },
+      { id:"vip",   name:"VIP Lounge",   cap:6000,  occ:5740,  density:"HIGH"     }
     ];
     this.queues = [
       { id:"ga",  loc:"Gate A — Entry",    type:"ENTRY",  wait:14, staff:4, cap:20 },
@@ -734,7 +743,8 @@ class ArenaBackend {
         { id:1, confidence:94, action:"REDIRECT_CROWD",  text:"Redirect 1,200 fans from North Stand Gate 3 via internal walkway C — reduces bottleneck by est. 68%", impact:"HIGH" },
         { id:2, confidence:87, action:"STAFF_DEPLOY",    text:"Deploy 3 additional staff to Food Court 1 — predicted wait time drops from 22min → 9min", impact:"HIGH" },
         { id:3, confidence:79, action:"OPEN_AUX_EXIT",   text:"Pre-open Auxiliary Gate West in 12 minutes based on scoreline trajectory and historical exit model", impact:"MEDIUM" },
-        { id:4, confidence:72, action:"ANNOUNCEMENT",    text:"Broadcast restroom availability at Block C to reduce Block A queue by distributing flow", impact:"LOW" }
+        { id:4, confidence:72, action:"ANNOUNCEMENT",    text:"Broadcast restroom availability at Block C to reduce Block A queue by distributing flow", impact:"LOW" },
+        { id:5, confidence:68, action:"TRANSPORT_ALERT",  text:"Notify 3,200 fans in South Stand: Maidan Metro exit congested — recommend Strand Road exit via Gate 6", impact:"MEDIUM" }
       ]
     };
   }
@@ -746,7 +756,7 @@ class ArenaBackend {
       : 0;
     return {
       success: true,
-      service: "ArenaIQ Backend",
+      service: "ArenaIQ — Eden Gardens",
       version: "1.4.2",
       uptime: uptime,
       uptimeStr: this._formatUptime(uptime),
@@ -754,7 +764,7 @@ class ArenaBackend {
       avgLatencyMs: avgLat,
       endpoints: ["/api/crowd","/api/alerts","/api/queues","/api/exit","/api/ai","/api/status"],
       deployment: "Vercel Serverless",
-      region: "ap-south-1",
+      region: "ap-south-1 (Kolkata)",
       nodeVersion: "18.x",
       memoryUsed: Math.floor(18 + Math.random() * 4) + "MB / 256MB"
     };
@@ -780,11 +790,12 @@ class ArenaBackend {
 
   _seedAlerts() {
     const seeds = [
-      { type:"CRITICAL", zone:"North Stand Gate 3", msg:"Crowd density at 91% — diversion route activated automatically" },
-      { type:"WARNING",  zone:"Food Court 1",        msg:"Wait time 22min — 8min above threshold. Staff deployment recommended" },
-      { type:"AI",       zone:"AI Engine",           msg:"Gemini: Redirect 1,200 fans via walkway C — 94% confidence intervention" },
-      { type:"INFO",     zone:"Exit Gate 1",         msg:"Early exit prediction: surge in 8min — pre-opening auxiliary gates" },
-      { type:"WARNING",  zone:"East Block",          msg:"Occupancy 89% — monitoring for escalation to CRITICAL status" }
+      { type:"CRITICAL", zone:"North Stand Gate 3",  msg:"Crowd density at 95% — diversion route via Walkway C activated automatically" },
+      { type:"WARNING",  zone:"Food Court 1",         msg:"Wait time 22min — 8min above threshold. Staff deployment recommended" },
+      { type:"AI",       zone:"Gemini AI Engine",     msg:"Redirect 1,200 fans via internal walkway C — 94% confidence, reduces bottleneck 68%" },
+      { type:"INFO",     zone:"Exit Gate 1",          msg:"Early exit surge in 8min — pre-opening auxiliary gates at Strand Road end" },
+      { type:"WARNING",  zone:"East Block",           msg:"Occupancy 95% — monitoring for escalation to CRITICAL status" },
+      { type:"INFO",     zone:"Transport",            msg:"Maidan Metro congestion detected — rerouting 3,200 South Stand fans to Strand Road Gate 6" }
     ];
     seeds.forEach((s, i) => {
       this.alertLog.push({ ...s, id: i+1, timestamp: new Date(Date.now() - (seeds.length - i) * 90000).toISOString() });
@@ -795,8 +806,9 @@ class ArenaBackend {
     const templates = [
       { type:"INFO",    zone:"Broadcast System", msg:"Venue-wide SMS dispatched to 2,400 fans in North Stand sector 3-7" },
       { type:"WARNING", zone:"Gate B",            msg:"Gate B queue rising — predicted 14min wait in 5 minutes" },
-      { type:"AI",      zone:"AI Engine",         msg:"Gemini updated exit surge model — now forecasting +2,100 early exits" },
-      { type:"INFO",    zone:"Security",          msg:"Security patrol deployed to West Block walkway C per AI recommendation" }
+      { type:"AI",      zone:"Gemini AI Engine",  msg:"Gemini updated exit surge model — now forecasting +2,100 early exits at Strand Road" },
+      { type:"INFO",    zone:"Security",          msg:"Security patrol deployed to West Block walkway C per AI recommendation" },
+      { type:"INFO",    zone:"Transport",         msg:"Maidan Metro platform congestion — advisory sent to 1,800 fans via SMS" }
     ];
     const t = templates[Math.floor(Math.random() * templates.length)];
     this.alertLog.unshift({ ...t, id: this.alertLog.length + 1, timestamp: new Date().toISOString() });
@@ -851,7 +863,7 @@ function renderStats() {
   const c = cache.crowd, q = cache.queues, a = cache.alerts;
   if (!c || !q || !a) return;
 
-  const attendPct = Math.round(c.totalAttendance / 52000 * 100);
+  const attendPct = Math.round(c.totalAttendance / 66000 * 100);
   setEl("stat-attend", c.totalAttendance.toLocaleString());
   setDelta("stat-attend-d", `${attendPct}% capacity`, attendPct > 85 ? "up" : "neutral");
 
@@ -863,9 +875,12 @@ function renderStats() {
   setDelta("stat-alerts-d", `${a.critical} critical`, a.critical > 0 ? "up" : "neutral");
 
   const crit = c.zones.filter(z => z.density === "CRITICAL").length;
-  const safety = Math.max(40, 100 - (crit * 20) - (a.critical * 5) - (avgWait > 20 ? 10 : 0));
+  const safety = (Math.max(40, 100 - (crit * 20) - (a.critical * 5) - (avgWait > 20 ? 10 : 0)) / 10).toFixed(1);
   setEl("stat-safety", safety);
   setDelta("stat-safety-d", crit > 0 ? "▼ Zones in critical" : "▲ All zones normal", crit > 0 ? "up" : "down");
+
+  const mi = document.getElementById("match-info");
+  if (mi) mi.textContent = `MIN ${c.match.minute} · ${c.match.score}`;
 }
 
 // ── Venue map ──
@@ -959,6 +974,13 @@ function renderAI() {
     </div>`;
   }).join("");
   document.getElementById("ai-body").innerHTML = html;
+
+  const strip = document.getElementById("gemini-strip");
+  const conf = document.getElementById("gemini-conf");
+  if (strip && ai.recommendations[0]) {
+    strip.textContent = ai.recommendations[0].text.slice(0, 90) + "...";
+    if (conf) conf.textContent = ai.recommendations[0].confidence + "%";
+  }
 }
 
 // ── Alerts ──
@@ -1117,8 +1139,8 @@ const modalContent = {
     const c = cache.crowd;
     return { title:"Attendance Details", rows:[
       ["Total Attendance", c.totalAttendance.toLocaleString()],
-      ["Venue Capacity", "52,000"],
-      ["Occupancy", Math.round(c.totalAttendance/52000*100) + "%"],
+      ["Venue Capacity", "66,000"],
+      ["Occupancy", Math.round(c.totalAttendance/66000*100) + "%"],
       ["Match", `${c.match.phase.replace("_"," ")} — Min ${c.match.minute}`],
       ["Score", c.match.score],
       ["Zones Monitored", c.zones.length]
