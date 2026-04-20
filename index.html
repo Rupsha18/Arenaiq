@@ -1,1242 +1,207 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>ArenaIQ — Eden Gardens Venue Intelligence</title>
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
-<style>
-:root {
-  --bg:        #080c14;
-  --bg2:       #0d1320;
-  --bg3:       #111927;
-  --panel:     #0f1824;
-  --border:    rgba(0,200,255,0.12);
-  --border2:   rgba(0,200,255,0.25);
-  --cyan:      #00c8ff;
-  --cyan2:     #00eeff;
-  --green:     #00ff88;
-  --amber:     #ffb800;
-  --red:       #ff3b5c;
-  --purple:    #a855f7;
-  --text:      #c8d8e8;
-  --text2:     #6888a0;
-  --font-head: 'Rajdhani', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
-  --font-body: 'Inter', sans-serif;
-}
-*{margin:0;padding:0;box-sizing:border-box}
-html{font-size:14px}
-body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;overflow-x:hidden}
+  <meta charset="UTF-8">
+  <title>ArenaIQ Smart Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-/* ── SCANLINE OVERLAY ── */
-body::before{
-  content:'';position:fixed;inset:0;
-  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);
-  pointer-events:none;z-index:9999
-}
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #0f172a;
+      color: white;
+    }
 
-/* ── TOP BAR ── */
-#topbar{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 20px;height:52px;background:var(--bg2);
-  border-bottom:1px solid var(--border2);position:sticky;top:0;z-index:100
-}
-.logo{display:flex;align-items:center;gap:10px}
-.logo-icon{width:32px;height:32px;border:2px solid var(--cyan);border-radius:6px;
-  display:flex;align-items:center;justify-content:center;
-  background:rgba(0,200,255,0.08);font-size:16px}
-.logo-text{font-family:var(--font-head);font-size:22px;font-weight:700;
-  letter-spacing:2px;color:#fff}
-.logo-text span{color:var(--cyan)}
-.logo-sub{font-family:var(--font-mono);font-size:9px;color:var(--text2);letter-spacing:3px;margin-top:1px}
-.topbar-center{display:flex;gap:6px}
-.tab-btn{
-  font-family:var(--font-mono);font-size:10px;letter-spacing:1px;
-  padding:5px 14px;border-radius:4px;border:1px solid var(--border);
-  background:transparent;color:var(--text2);cursor:pointer;transition:all .2s;text-transform:uppercase
-}
-.tab-btn:hover{border-color:var(--cyan);color:var(--cyan)}
-.tab-btn.active{background:rgba(0,200,255,0.12);border-color:var(--cyan2);color:var(--cyan2)}
-.topbar-right{display:flex;align-items:center;gap:14px}
-.status-dot{width:8px;height:8px;border-radius:50%;background:var(--green);
-  box-shadow:0 0 8px var(--green);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.live-badge{font-family:var(--font-mono);font-size:9px;color:var(--green);letter-spacing:2px}
-#clock{font-family:var(--font-mono);font-size:12px;color:var(--cyan);letter-spacing:1px}
+    header {
+      padding: 20px;
+      text-align: center;
+      background: #1e293b;
+      font-size: 24px;
+      font-weight: bold;
+    }
 
-/* ── LAYOUT ── */
-#app{display:grid;grid-template-columns:1fr 320px;grid-template-rows:auto 1fr;height:calc(100vh - 52px)}
-#ticker-bar{
-  grid-column:1/-1;background:rgba(0,0,0,0.4);border-bottom:1px solid var(--border);
-  height:32px;display:flex;align-items:center;overflow:hidden;position:relative
-}
-.ticker-label{
-  font-family:var(--font-mono);font-size:9px;color:var(--bg);background:var(--cyan);
-  padding:0 10px;height:100%;display:flex;align-items:center;letter-spacing:2px;white-space:nowrap;flex-shrink:0
-}
-.ticker-scroll{display:flex;gap:0;animation:scroll-x 40s linear infinite;white-space:nowrap}
-@keyframes scroll-x{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-.ticker-item{
-  font-family:var(--font-mono);font-size:10px;color:var(--cyan);
-  padding:0 24px;border-right:1px solid var(--border);letter-spacing:.5px
-}
-.ticker-item.warn{color:var(--amber)}
-.ticker-item.crit{color:var(--red)}
+    .container {
+      padding: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
 
-/* ── MAIN PANEL ── */
-#main{overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px}
+    .card {
+      background: #1e293b;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
 
-/* ── STAT CARDS ROW ── */
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.stat-card{
-  background:var(--panel);border:1px solid var(--border);border-radius:8px;
-  padding:14px 16px;position:relative;overflow:hidden;cursor:pointer;transition:border-color .2s
-}
-.stat-card:hover{border-color:var(--border2)}
-.stat-card::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:2px;
-  background:linear-gradient(90deg,transparent,var(--accent,var(--cyan)),transparent)
-}
-.stat-card.green{--accent:var(--green)}
-.stat-card.amber{--accent:var(--amber)}
-.stat-card.red{--accent:var(--red)}
-.stat-label{font-family:var(--font-mono);font-size:9px;color:var(--text2);letter-spacing:2px;margin-bottom:6px;text-transform:uppercase}
-.stat-value{font-family:var(--font-head);font-size:28px;font-weight:700;color:#fff;line-height:1}
-.stat-unit{font-size:13px;color:var(--text2);margin-left:2px}
-.stat-delta{font-family:var(--font-mono);font-size:10px;margin-top:4px}
-.stat-delta.up{color:var(--red)}
-.stat-delta.down{color:var(--green)}
-.stat-delta.neutral{color:var(--text2)}
+    h2 {
+      margin-top: 0;
+    }
 
-/* ── GRID ROW 2 ── */
-.grid-2{display:grid;grid-template-columns:1.4fr 1fr;gap:10px}
+    pre {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      font-size: 13px;
+    }
 
-/* ── VENUE MAP ── */
-.panel{background:var(--panel);border:1px solid var(--border);border-radius:8px;overflow:hidden}
-.panel-header{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:10px 16px;border-bottom:1px solid var(--border);
-  background:rgba(0,200,255,0.03)
-}
-.panel-title{font-family:var(--font-head);font-size:14px;font-weight:600;letter-spacing:1px;color:#fff;text-transform:uppercase}
-.panel-badge{font-family:var(--font-mono);font-size:9px;padding:2px 8px;border-radius:3px;letter-spacing:1px}
-.badge-live{background:rgba(0,255,136,0.12);color:var(--green);border:1px solid rgba(0,255,136,0.3)}
-.badge-ai{background:rgba(168,85,247,0.12);color:var(--purple);border:1px solid rgba(168,85,247,0.3)}
-.badge-warn{background:rgba(255,184,0,0.12);color:var(--amber);border:1px solid rgba(255,184,0,0.3)}
+    #map {
+      height: 400px;
+      width: 100%;
+      border-radius: 12px;
+      margin-top: 10px;
+    }
 
-#venue-map{padding:16px;position:relative}
-#map-svg{width:100%;height:260px}
-
-/* stadium zones */
-.zone-area{transition:opacity .3s;cursor:pointer}
-.zone-area:hover{opacity:.85}
-.zone-label{font-family:var(--font-mono);font-size:9px;fill:#fff;letter-spacing:.5px;text-anchor:middle}
-.zone-count{font-family:var(--font-head);font-size:14px;font-weight:700;text-anchor:middle}
-.density-low{fill:rgba(0,255,136,0.25);stroke:rgba(0,255,136,0.6);stroke-width:1.5}
-.density-med{fill:rgba(255,184,0,0.25);stroke:rgba(255,184,0,0.6);stroke-width:1.5}
-.density-high{fill:rgba(255,59,92,0.25);stroke:rgba(255,59,92,0.7);stroke-width:2}
-.density-crit{fill:rgba(255,59,92,0.45);stroke:#ff3b5c;stroke-width:2.5;animation:zone-flash 1s infinite}
-@keyframes zone-flash{0%,100%{stroke-opacity:1}50%{stroke-opacity:.3}}
-.divert-path{fill:none;stroke:var(--cyan);stroke-width:1.5;stroke-dasharray:6 4;animation:dash-move 1.5s linear infinite;opacity:.7}
-@keyframes dash-move{to{stroke-dashoffset:-20}}
-
-/* ── QUEUE BARS ── */
-#queue-panel .panel-body{padding:12px 16px;display:flex;flex-direction:column;gap:8px}
-.queue-row{display:flex;flex-direction:column;gap:4px}
-.queue-meta{display:flex;justify-content:space-between;align-items:center}
-.queue-name{font-size:11px;color:var(--text);font-family:var(--font-mono)}
-.queue-time{font-family:var(--font-head);font-size:13px;font-weight:600}
-.queue-time.ok{color:var(--green)}
-.queue-time.warn{color:var(--amber)}
-.queue-time.bad{color:var(--red)}
-.queue-bar-bg{height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden}
-.queue-bar-fill{height:100%;border-radius:2px;transition:width .8s ease}
-.fill-ok{background:var(--green)}
-.fill-warn{background:var(--amber)}
-.fill-bad{background:var(--red)}
-.queue-predict{font-family:var(--font-mono);font-size:9px;color:var(--purple);margin-top:2px}
-
-/* ── BOTTOM GRID ── */
-.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-#stand-panel .panel-body,#exit-panel .panel-body,#ai-divert .panel-body{padding:12px 16px}
-
-.stand-row{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:7px 0;border-bottom:1px solid var(--border);gap:8px
-}
-.stand-row:last-child{border-bottom:none}
-.stand-name{font-size:11px;color:var(--text);font-family:var(--font-body);flex:1}
-.stand-bar-wrap{flex:1;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden}
-.stand-bar{height:100%;border-radius:3px;transition:width 1s ease}
-.stand-pct{font-family:var(--font-mono);font-size:10px;min-width:34px;text-align:right}
-
-.exit-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border)}
-.exit-row:last-child{border-bottom:none}
-.exit-icon{font-size:16px}
-.exit-info{flex:1}
-.exit-name{font-size:11px;color:var(--text)}
-.exit-status{font-family:var(--font-mono);font-size:9px;color:var(--text2);margin-top:1px}
-.exit-eta{font-family:var(--font-mono);font-size:10px;color:var(--amber)}
-.exit-btn{
-  font-family:var(--font-mono);font-size:9px;padding:3px 8px;border-radius:3px;
-  border:1px solid var(--border2);background:transparent;color:var(--cyan);cursor:pointer;
-  letter-spacing:1px;transition:all .15s
-}
-.exit-btn:hover{background:rgba(0,200,255,0.1)}
-.exit-btn.open{border-color:var(--green);color:var(--green);background:rgba(0,255,136,0.08)}
-
-.ai-rec{
-  background:rgba(168,85,247,0.06);border:1px solid rgba(168,85,247,0.2);
-  border-radius:6px;padding:9px 11px;margin-bottom:7px;cursor:pointer;transition:border-color .2s
-}
-.ai-rec:last-child{margin-bottom:0}
-.ai-rec:hover{border-color:rgba(168,85,247,0.5)}
-.ai-rec-head{display:flex;align-items:center;gap:6px;margin-bottom:4px}
-.ai-chip{font-family:var(--font-mono);font-size:8px;padding:2px 6px;border-radius:2px;
-  background:rgba(168,85,247,0.2);color:var(--purple);letter-spacing:1px}
-.ai-conf{font-family:var(--font-mono);font-size:9px;color:var(--text2);margin-left:auto}
-.ai-text{font-size:11px;color:var(--text);line-height:1.5}
-.ai-impact{font-family:var(--font-mono);font-size:9px;color:var(--cyan);margin-top:4px}
-
-/* ── RIGHT SIDEBAR ── */
-#sidebar{
-  border-left:1px solid var(--border);display:flex;flex-direction:column;
-  overflow:hidden;background:var(--bg2)
-}
-#sidebar-tabs{display:flex;border-bottom:1px solid var(--border)}
-.stab{
-  flex:1;padding:10px 0;font-family:var(--font-mono);font-size:9px;letter-spacing:1.5px;
-  text-align:center;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent;
-  transition:all .2s;text-transform:uppercase
-}
-.stab.active{color:var(--cyan);border-bottom-color:var(--cyan);background:rgba(0,200,255,0.04)}
-.stab:hover:not(.active){color:var(--text)}
-.sidebar-pane{display:none;flex-direction:column;flex:1;overflow-y:auto}
-.sidebar-pane.active{display:flex}
-
-/* alerts */
-.alert-item{
-  padding:11px 14px;border-bottom:1px solid var(--border);cursor:pointer;
-  transition:background .15s;position:relative
-}
-.alert-item:hover{background:rgba(255,255,255,0.02)}
-.alert-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px}
-.alert-item.crit::before{background:var(--red)}
-.alert-item.warn::before{background:var(--amber)}
-.alert-item.info::before{background:var(--cyan)}
-.alert-item.ai::before{background:var(--purple)}
-.alert-type{font-family:var(--font-mono);font-size:8px;letter-spacing:1.5px;margin-bottom:3px}
-.crit .alert-type{color:var(--red)}
-.warn .alert-type{color:var(--amber)}
-.info .alert-type{color:var(--cyan)}
-.ai .alert-type{color:var(--purple)}
-.alert-msg{font-size:11px;color:var(--text);line-height:1.45}
-.alert-zone{font-family:var(--font-mono);font-size:9px;color:var(--text2);margin-top:3px}
-.alert-time{font-family:var(--font-mono);font-size:9px;color:var(--text2);float:right}
-
-/* api console */
-#api-console{display:flex;flex-direction:column;flex:1;overflow:hidden}
-.console-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);flex-shrink:0}
-.ctab{
-  flex:1;padding:7px 0;font-family:var(--font-mono);font-size:9px;letter-spacing:1px;
-  text-align:center;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent;
-  transition:all .2s;text-transform:uppercase
-}
-.ctab.active{color:var(--green);border-bottom-color:var(--green)}
-.console-body{flex:1;overflow-y:auto;padding:10px}
-.api-endpoint{
-  background:rgba(0,255,136,0.04);border:1px solid rgba(0,255,136,0.15);
-  border-radius:6px;padding:10px;margin-bottom:8px
-}
-.endpoint-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}
-.method{
-  font-family:var(--font-mono);font-size:9px;padding:2px 7px;border-radius:3px;letter-spacing:1px
-}
-.method.get{background:rgba(0,255,136,0.15);color:var(--green)}
-.method.post{background:rgba(0,200,255,0.15);color:var(--cyan)}
-.endpoint-path{font-family:var(--font-mono);font-size:10px;color:var(--cyan)}
-.endpoint-desc{font-size:10px;color:var(--text2);margin-bottom:6px}
-.try-btn{
-  font-family:var(--font-mono);font-size:9px;padding:4px 12px;border-radius:3px;
-  border:1px solid rgba(0,255,136,0.3);background:rgba(0,255,136,0.06);color:var(--green);
-  cursor:pointer;letter-spacing:1px;transition:all .15s;width:100%
-}
-.try-btn:hover{background:rgba(0,255,136,0.12)}
-.api-response{
-  background:#060a10;border:1px solid var(--border);border-radius:6px;
-  padding:10px;margin-top:6px;font-family:var(--font-mono);font-size:9px;
-  color:var(--green);line-height:1.6;max-height:180px;overflow-y:auto;display:none
-}
-.api-response.show{display:block}
-.json-key{color:var(--cyan)}
-.json-str{color:var(--amber)}
-.json-num{color:var(--purple)}
-.json-bool{color:var(--green)}
-
-/* backend status */
-#backend-status{padding:12px;display:flex;flex-direction:column;gap:8px}
-.bs-row{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:8px 10px;background:rgba(0,200,255,0.03);border:1px solid var(--border);
-  border-radius:6px
-}
-.bs-name{font-family:var(--font-mono);font-size:10px;color:var(--text)}
-.bs-val{font-family:var(--font-mono);font-size:10px}
-.bs-val.ok{color:var(--green)}
-.bs-val.warn{color:var(--amber)}
-.bs-ping{animation:ping-update .3s ease}
-@keyframes ping-update{0%{opacity:.3}100%{opacity:1}}
-
-/* scrollbars */
-::-webkit-scrollbar{width:4px;height:4px}
-::-webkit-scrollbar-track{background:var(--bg)}
-::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
-
-/* ══════════════════════════════════════════
-   MOBILE RESPONSIVE — phones & small screens
-══════════════════════════════════════════ */
-@media(max-width:768px){
-  html{font-size:13px}
-
-  /* topbar: hide subtitle and nav buttons, keep logo + status */
-  .logo-sub{display:none}
-  .topbar-center{display:none}
-  .live-badge{display:none}
-  #topbar{padding:0 12px;height:48px}
-  .logo-text{font-size:18px}
-
-  /* app: single column, no sidebar in grid */
-  #app{
-    display:flex;flex-direction:column;
-    height:auto;min-height:calc(100vh - 48px)
-  }
-
-  /* ticker smaller */
-  #ticker-bar{height:28px}
-  .ticker-item{font-size:9px;padding:0 14px}
-
-  /* main: full width, tighter padding */
-  #main{padding:10px;gap:10px;overflow-y:visible}
-
-  /* stat cards: 2 columns on phone */
-  .stats-row{grid-template-columns:1fr 1fr;gap:8px}
-  .stat-value{font-size:22px}
-  .stat-card{padding:10px 12px}
-
-  /* map + queue: stack vertically */
-  .grid-2{grid-template-columns:1fr}
-  #map-svg{height:200px}
-
-  /* bottom 3 grid: stack vertically */
-  .grid-3{grid-template-columns:1fr}
-
-  /* sidebar: move to bottom as a tab bar */
-  #sidebar{
-    border-left:none;border-top:1px solid var(--border2);
-    width:100%;max-height:360px
-  }
-  #sidebar-tabs{position:sticky;top:0;z-index:10;background:var(--bg2)}
-  .stab{padding:12px 0;font-size:10px}
-
-  /* queue panel full width */
-  #queue-panel .panel-body{padding:10px 12px}
-
-  /* panel headers smaller */
-  .panel-title{font-size:12px}
-  .panel-badge{font-size:8px;padding:2px 6px}
-
-  /* modal full screen on phone */
-  #modal{width:95vw;max-height:90vh}
-}
-
-@media(max-width:400px){
-  .stats-row{grid-template-columns:1fr 1fr}
-  .stat-value{font-size:20px}
-  .logo-text{font-size:16px}
-}
-
-/* ── MOBILE BOTTOM NAV ── */
-#mobile-nav{
-  display:none;position:fixed;bottom:0;left:0;right:0;
-  background:var(--bg2);border-top:1px solid var(--border2);
-  height:52px;z-index:150;
-  display:none;align-items:center;justify-content:space-around
-}
-.mnav{
-  flex:1;height:100%;background:none;border:none;
-  color:var(--text2);font-family:var(--font-mono);font-size:9px;
-  letter-spacing:.5px;cursor:pointer;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;gap:2px;transition:color .2s
-}
-.mnav.active{color:var(--cyan)}
-.mnav:active{opacity:.7}
-@media(max-width:768px){
-  #mobile-nav{display:flex}
-  body{padding-bottom:52px}
-  /* hide desktop sidebar tabs on mobile since bottom nav replaces them */
-  #sidebar-tabs{display:none}
-}
-
-
-#modal-overlay{
-  display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;
-  align-items:center;justify-content:center
-}
-#modal-overlay.show{display:flex}
-#modal{
-  background:var(--bg2);border:1px solid var(--border2);border-radius:10px;
-  width:460px;max-width:95vw;max-height:80vh;overflow-y:auto
-}
-.modal-head{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:14px 18px;border-bottom:1px solid var(--border)
-}
-.modal-title{font-family:var(--font-head);font-size:16px;font-weight:600;color:#fff;letter-spacing:1px}
-.modal-close{background:none;border:none;color:var(--text2);cursor:pointer;font-size:18px;line-height:1}
-.modal-body{padding:18px}
-.modal-stat{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px}
-.modal-stat:last-child{border-bottom:none}
-.mstat-label{color:var(--text2);font-family:var(--font-mono)}
-.mstat-val{color:#fff;font-family:var(--font-head);font-size:14px;font-weight:600}
-</style>
+    button {
+      padding: 10px;
+      background: #3b82f6;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
 </head>
+
 <body>
 
-<!-- TOP BAR -->
-<div id="topbar">
-  <div class="logo">
-    <div class="logo-icon">🏟</div>
-    <div>
-      <div class="logo-text">Arena<span>IQ</span></div>
-      <div class="logo-sub">EDEN GARDENS · KKR vs MI · IPL 2026</div>
-    </div>
+<header>
+  🏟️ ArenaIQ — AI Smart Stadium System
+</header>
+
+<div class="container">
+
+  <!-- Crowd -->
+  <div class="card">
+    <h2>📊 Crowd Data</h2>
+    <pre id="crowd" aria-label="Crowd data display"></pre>
   </div>
-  <div class="topbar-center">
-    <button class="tab-btn active" onclick="switchView('ops')">OPS CENTRE</button>
-    <button class="tab-btn" onclick="switchView('api')">API CONSOLE</button>
-    <button class="tab-btn" onclick="switchView('backend')">BACKEND STATUS</button>
+
+  <!-- Alerts -->
+  <div class="card">
+    <h2>🚨 Alerts</h2>
+    <pre id="alerts" aria-label="Alerts display"></pre>
   </div>
-  <div class="topbar-right">
-    <div style="font-family:var(--font-mono);font-size:10px;color:var(--amber);letter-spacing:1px" id="match-info">MIN 67 · 2-1</div>
-    <div style="width:1px;height:16px;background:var(--border2)"></div>
-    <div class="status-dot"></div>
-    <div class="live-badge">LIVE</div>
-    <div id="clock">--:--:--</div>
+
+  <!-- AI Prediction -->
+  <div class="card">
+    <h2>🤖 AI Prediction</h2>
+    <pre id="prediction" aria-label="Prediction display"></pre>
   </div>
+
+  <!-- MAP -->
+  <div class="card">
+    <h2>🚶 Safe Exit Navigation</h2>
+    <p>AI selects safest exit based on real-time crowd density</p>
+    <div id="map"></div>
+  </div>
+
 </div>
 
-<!-- APP -->
-<div id="app">
-
-  <!-- GEMINI AI STRIP -->
-  <div style="grid-column:1/-1;background:rgba(168,85,247,0.08);border-bottom:1px solid rgba(168,85,247,0.25);height:28px;display:flex;align-items:center;padding:0 16px;gap:12px">
-    <span style="font-family:var(--font-mono);font-size:9px;background:rgba(168,85,247,0.25);color:#c084fc;padding:2px 8px;border-radius:3px;letter-spacing:1px">GEMINI 1.5 PRO</span>
-    <span style="font-family:var(--font-mono);font-size:9px;color:#a855f7;letter-spacing:.5px" id="gemini-strip">AI model active — processing venue data</span>
-    <span style="margin-left:auto;font-family:var(--font-mono);font-size:9px;color:rgba(168,85,247,0.5)">CONFIDENCE: <span style="color:#c084fc" id="gemini-conf">94%</span></span>
-  </div>
-
-  <!-- TICKER -->
-  <div id="ticker-bar">
-    <div class="ticker-label">▶ BROADCAST</div>
-    <div style="overflow:hidden;flex:1;position:relative">
-      <div class="ticker-scroll" id="ticker-scroll"></div>
-    </div>
-  </div>
-
-  <!-- MAIN -->
-  <div id="main">
-
-    <!-- STAT CARDS -->
-    <div class="stats-row">
-      <div class="stat-card" onclick="openModal('total')">
-        <div class="stat-label">Total Attendance</div>
-        <div><span class="stat-value" id="stat-attend">0</span><span class="stat-unit">/ 66,000</span></div>
-        <div class="stat-delta neutral" id="stat-attend-d">Loading...</div>
-      </div>
-      <div class="stat-card amber" onclick="openModal('queue')">
-        <div class="stat-label">Avg Wait Time</div>
-        <div><span class="stat-value" id="stat-wait">0</span><span class="stat-unit">min</span></div>
-        <div class="stat-delta" id="stat-wait-d">Loading...</div>
-      </div>
-      <div class="stat-card red" onclick="openModal('alerts')">
-        <div class="stat-label">Active Alerts</div>
-        <div><span class="stat-value" id="stat-alerts">0</span><span class="stat-unit">alerts</span></div>
-        <div class="stat-delta" id="stat-alerts-d">Loading...</div>
-      </div>
-      <div class="stat-card green" onclick="openModal('safety')">
-        <div class="stat-label">Safety Index</div>
-        <div><span class="stat-value" id="stat-safety">0</span><span class="stat-unit">/ 10</span></div>
-        <div class="stat-delta" id="stat-safety-d">Loading...</div>
-      </div>
-    </div>
-
-    <!-- MAP + QUEUES -->
-    <div class="grid-2">
-      <div class="panel">
-        <div class="panel-header">
-          <div class="panel-title">Live Venue Map</div>
-          <span class="panel-badge badge-live">REAL-TIME DENSITY</span>
-        </div>
-        <div id="venue-map">
-          <svg id="map-svg" viewBox="0 0 520 260">
-            <!-- Pitch -->
-            <rect x="110" y="55" width="300" height="150" rx="8" fill="rgba(0,180,80,0.08)" stroke="rgba(0,200,80,0.3)" stroke-width="1"/>
-            <rect x="130" y="75" width="260" height="110" fill="none" stroke="rgba(0,200,80,0.15)" stroke-width="1"/>
-            <circle cx="260" cy="130" r="30" fill="none" stroke="rgba(0,200,80,0.15)" stroke-width="1"/>
-            <line x1="260" y1="55" x2="260" y2="205" stroke="rgba(0,200,80,0.15)" stroke-width="1"/>
-            <text x="260" y="134" text-anchor="middle" font-family="JetBrains Mono" font-size="8" fill="rgba(0,200,80,0.4)">PITCH</text>
-
-            <!-- North Stand -->
-            <rect id="zone-north" class="zone-area density-low" x="110" y="10" width="300" height="38" rx="5"/>
-            <text class="zone-label" x="260" y="24">NORTH STAND</text>
-            <text class="zone-count" id="cnt-north" x="260" y="38" fill="var(--green)">0</text>
-
-            <!-- South Stand -->
-            <rect id="zone-south" class="zone-area density-low" x="110" y="212" width="300" height="38" rx="5"/>
-            <text class="zone-label" x="260" y="226">SOUTH STAND</text>
-            <text class="zone-count" id="cnt-south" x="260" y="240" fill="var(--green)">0</text>
-
-            <!-- East Block -->
-            <rect id="zone-east" class="zone-area density-med" x="418" y="55" width="90" height="150" rx="5"/>
-            <text class="zone-label" x="463" y="124">EAST</text>
-            <text class="zone-count" id="cnt-east" x="463" y="138" fill="var(--amber)">0</text>
-
-            <!-- West Block -->
-            <rect id="zone-west" class="zone-area density-low" x="12" y="55" width="90" height="150" rx="5"/>
-            <text class="zone-label" x="57" y="124">WEST</text>
-            <text class="zone-count" id="cnt-west" x="57" y="138" fill="var(--green)">0</text>
-
-            <!-- VIP -->
-            <rect x="195" y="70" width="130" height="35" rx="4" fill="rgba(168,85,247,0.12)" stroke="rgba(168,85,247,0.4)" stroke-width="1"/>
-            <text x="260" y="90" text-anchor="middle" font-family="JetBrains Mono" font-size="8" fill="var(--purple)">VIP LOUNGE</text>
-            <text class="zone-count" id="cnt-vip" x="260" y="102" fill="var(--purple)">0</text>
-
-            <!-- Divert path (animated) -->
-            <path id="divert-path" class="divert-path" d="M260 10 Q420 10 430 80"/>
-            <path class="divert-path" d="M418 130 Q510 130 510 200 Q510 260 430 260" style="opacity:.4"/>
-          </svg>
-        </div>
-      </div>
-
-      <!-- QUEUE PANEL -->
-      <div class="panel" id="queue-panel">
-        <div class="panel-header">
-          <div class="panel-title">Live Queue Times</div>
-          <span class="panel-badge badge-warn" id="halftime-badge">HALFTIME +8min</span>
-        </div>
-        <div class="panel-body" id="queue-body"></div>
-      </div>
-    </div>
-
-    <!-- BOTTOM GRID -->
-    <div class="grid-3">
-      <!-- Stand Occupancy -->
-      <div class="panel">
-        <div class="panel-header">
-          <div class="panel-title">Stand Occupancy</div>
-          <span class="panel-badge badge-live">LIVE</span>
-        </div>
-        <div class="panel-body" id="stand-body" style="padding:12px 16px"></div>
-      </div>
-
-      <!-- Exit Prediction -->
-      <div class="panel" id="exit-panel">
-        <div class="panel-header">
-          <div class="panel-title">Exit Predictions</div>
-          <span class="panel-badge badge-ai">AI MODEL</span>
-        </div>
-        <div class="panel-body" id="exit-body" style="padding:12px 16px"></div>
-      </div>
-
-      <!-- AI Diversion -->
-      <div class="panel" id="ai-divert">
-        <div class="panel-header">
-          <div class="panel-title">AI Recommendations</div>
-          <span class="panel-badge badge-ai">GEMINI</span>
-        </div>
-        <div class="panel-body" id="ai-body" style="padding:12px 16px"></div>
-      </div>
-    </div>
-
-  </div><!-- /main -->
-
-  <!-- SIDEBAR -->
-  <div id="sidebar">
-    <div id="sidebar-tabs">
-      <div class="stab active" onclick="switchSidebar('alerts')">ALERTS</div>
-      <div class="stab" onclick="switchSidebar('api')">API</div>
-      <div class="stab" onclick="switchSidebar('server')">SERVER</div>
-    </div>
-
-    <!-- Alerts Pane -->
-    <div class="sidebar-pane active" id="pane-alerts">
-      <div id="alerts-list"></div>
-    </div>
-
-    <!-- API Pane -->
-    <div class="sidebar-pane" id="pane-api">
-      <div id="api-console">
-        <div class="console-tabs">
-          <div class="ctab active" onclick="switchConsole('crowd')">/crowd</div>
-          <div class="ctab" onclick="switchConsole('alerts')">/alerts</div>
-          <div class="ctab" onclick="switchConsole('queues')">/queues</div>
-        </div>
-        <div class="console-body" id="console-body"></div>
-      </div>
-    </div>
-
-    <!-- Server Pane -->
-    <div class="sidebar-pane" id="pane-server">
-      <div id="backend-status"></div>
-    </div>
-  </div>
-
-</div><!-- /app -->
-
-<!-- MOBILE BOTTOM NAV -->
-<div id="mobile-nav">
-  <button class="mnav active" onclick="mobileTab('ops')">🏟 OPS</button>
-  <button class="mnav" onclick="mobileTab('alerts')">🔔 ALERTS</button>
-  <button class="mnav" onclick="mobileTab('api')">⚡ API</button>
-  <button class="mnav" onclick="mobileTab('server')">🖥 SERVER</button>
-</div>
-
-<!-- MODAL -->
-<div id="modal-overlay" onclick="closeModal(event)">
-  <div id="modal">
-    <div class="modal-head">
-      <div class="modal-title" id="modal-title">Details</div>
-      <button class="modal-close" onclick="closeModal()">✕</button>
-    </div>
-    <div class="modal-body" id="modal-body"></div>
-  </div>
-</div>
-
-<script>
-/* ================================================================
-   BACKEND ENGINE — ArenaIQ Server (Single-File Edition)
-   Simulates a real REST API with stateful data, request handling,
-   response formatting, and live metrics — all running client-side.
-   In production this maps 1:1 to api/crowd.js, api/alerts.js etc.
-================================================================ */
-class ArenaBackend {
-  constructor() {
-    this.startTime = Date.now();
-    this.requestCount = 0;
-    this.latencies = [];
-    this.state = {
-      matchMinute: 67,
-      score: "2-1",
-      phase: "SECOND_HALF",
-      attendance: 58420
-    };
-    this.zones = [
-      { id:"north", name:"North Stand",  cap:16000, occ:15200, density:"CRITICAL" },
-      { id:"south", name:"South Stand",  cap:16000, occ:10800, density:"MEDIUM"   },
-      { id:"east",  name:"East Block",   cap:14000, occ:13300, density:"HIGH"     },
-      { id:"west",  name:"West Block",   cap:14000, occ:8600,  density:"LOW"      },
-      { id:"vip",   name:"VIP Lounge",   cap:6000,  occ:5740,  density:"HIGH"     }
-    ];
-    this.queues = [
-      { id:"ga",  loc:"Gate A — Entry",    type:"ENTRY",  wait:14, staff:4, cap:20 },
-      { id:"gb",  loc:"Gate B — Entry",    type:"ENTRY",  wait:6,  staff:5, cap:20 },
-      { id:"fc1", loc:"Food Court 1",      type:"FOOD",   wait:22, staff:6, cap:30 },
-      { id:"fc2", loc:"Food Court 2",      type:"FOOD",   wait:11, staff:5, cap:30 },
-      { id:"rb",  loc:"Restroom Block A",  type:"RESTROOM",wait:5, staff:2, cap:10 },
-      { id:"mer", loc:"Merchandise Store", type:"RETAIL", wait:9,  staff:3, cap:15 }
-    ];
-    this.alertLog = [];
-    this._seedAlerts();
-  }
-
-  /* ── Simulate async fetch with latency ── */
-  async fetch(endpoint, body = null) {
-    const t0 = performance.now();
-    this.requestCount++;
-    await this._delay(12 + Math.random() * 30);
-    const result = this._route(endpoint, body);
-    const lat = Math.round(performance.now() - t0);
-    this.latencies.push(lat);
-    if (this.latencies.length > 50) this.latencies.shift();
-    return { status: 200, latency: lat, data: result };
-  }
-
-  _route(endpoint, body) {
-    this._tick(); // advance simulation state
-    if (endpoint === "/api/crowd")  return this._crowdHandler();
-    if (endpoint === "/api/alerts") return this._alertsHandler();
-    if (endpoint === "/api/queues") return this._queuesHandler();
-    if (endpoint === "/api/status") return this._statusHandler();
-    if (endpoint === "/api/exit")   return this._exitHandler();
-    if (endpoint === "/api/ai")     return this._aiHandler();
-    return { error: "404 Not Found" };
-  }
-
-  _crowdHandler() {
-    return {
-      success: true,
-      timestamp: new Date().toISOString(),
-      match: { minute: this.state.matchMinute, score: this.state.score, phase: this.state.phase },
-      totalAttendance: this.state.attendance,
-      zones: this.zones.map(z => ({
-        id: z.id, name: z.name,
-        capacity: z.cap, current: z.occ,
-        occupancyPct: Math.round(z.occ / z.cap * 100),
-        density: z.density,
-        diversionActive: z.density === "CRITICAL"
-      }))
-    };
-  }
-
-  _alertsHandler() {
-    return {
-      success: true,
-      count: this.alertLog.length,
-      critical: this.alertLog.filter(a => a.type === "CRITICAL").length,
-      alerts: this.alertLog.slice(0, 12)
-    };
-  }
-
-  _queuesHandler() {
-    const halftime = this.state.matchMinute >= 45 && this.state.matchMinute <= 55;
-    return {
-      success: true,
-      halftimeSurge: halftime,
-      predictedSurgeIn: halftime ? null : Math.max(0, 45 - this.state.matchMinute),
-      queues: this.queues.map(q => ({
-        id: q.id, location: q.loc, type: q.type,
-        waitMinutes: q.wait,
-        staffDeployed: q.staff,
-        status: q.wait > 20 ? "CRITICAL" : q.wait > 12 ? "WARNING" : "OK",
-        predictedPeak: q.wait + (halftime ? 8 : 0)
-      }))
-    };
-  }
-
-  _exitHandler() {
-    const min = this.state.matchMinute;
-    return {
-      success: true,
-      currentMinute: min,
-      prediction: {
-        earlyExitIn: Math.max(0, 75 - min),
-        surgeExitAt: 90,
-        estimatedExitVolume: 38000,
-        auxiliaryGatesNeeded: 4,
-        recommendation: min > 70 ? "OPEN_AUX_EXITS" : "STANDBY"
-      },
-      gates: [
-        { id:"G1", name:"Gate 1 — North",   status: min > 70 ? "OPEN" : "STANDBY", eta: Math.max(0,75-min)+"min" },
-        { id:"G2", name:"Gate 2 — South",   status:"OPEN",    eta:"Now"   },
-        { id:"G3", name:"Gate 3 — East",    status:"STANDBY", eta:"8min"  },
-        { id:"G4", name:"Aux Exit West",    status: min > 75 ? "OPEN" : "STANDBY", eta: Math.max(0,75-min)+"min" }
-      ]
-    };
-  }
-
-  _aiHandler() {
-    return {
-      success: true,
-      model: "gemini-1.5-pro",
-      recommendations: [
-        { id:1, confidence:94, action:"REDIRECT_CROWD",  text:"Redirect 1,200 fans from North Stand Gate 3 via internal walkway C — reduces bottleneck by est. 68%", impact:"HIGH" },
-        { id:2, confidence:87, action:"STAFF_DEPLOY",    text:"Deploy 3 additional staff to Food Court 1 — predicted wait time drops from 22min → 9min", impact:"HIGH" },
-        { id:3, confidence:79, action:"OPEN_AUX_EXIT",   text:"Pre-open Auxiliary Gate West in 12 minutes based on scoreline trajectory and historical exit model", impact:"MEDIUM" },
-        { id:4, confidence:72, action:"ANNOUNCEMENT",    text:"Broadcast restroom availability at Block C to reduce Block A queue by distributing flow", impact:"LOW" },
-        { id:5, confidence:68, action:"TRANSPORT_ALERT",  text:"Notify 3,200 fans in South Stand: Maidan Metro exit congested — recommend Strand Road exit via Gate 6", impact:"MEDIUM" }
-      ]
-    };
-  }
-
-  _statusHandler() {
-    const uptime = Math.floor((Date.now() - this.startTime) / 1000);
-    const avgLat = this.latencies.length
-      ? Math.round(this.latencies.reduce((a,b) => a+b, 0) / this.latencies.length)
-      : 0;
-    return {
-      success: true,
-      service: "ArenaIQ — Eden Gardens",
-      version: "1.4.2",
-      uptime: uptime,
-      uptimeStr: this._formatUptime(uptime),
-      requestsHandled: this.requestCount,
-      avgLatencyMs: avgLat,
-      endpoints: ["/api/crowd","/api/alerts","/api/queues","/api/exit","/api/ai","/api/status"],
-      deployment: "Vercel Serverless",
-      region: "ap-south-1 (Kolkata)",
-      nodeVersion: "18.x",
-      memoryUsed: Math.floor(18 + Math.random() * 4) + "MB / 256MB"
-    };
-  }
-
-  _tick() {
-    // Advance match clock
-    if (Math.random() < 0.3) this.state.matchMinute = Math.min(90, this.state.matchMinute + 1);
-    // Fluctuate crowds
-    this.zones.forEach(z => {
-      z.occ = Math.max(0, Math.min(z.cap, z.occ + Math.floor((Math.random() - 0.45) * 80)));
-      const pct = z.occ / z.cap;
-      z.density = pct > 0.9 ? "CRITICAL" : pct > 0.75 ? "HIGH" : pct > 0.5 ? "MEDIUM" : "LOW";
-    });
-    this.state.attendance = this.zones.reduce((s, z) => s + z.occ, 0);
-    // Fluctuate queues
-    this.queues.forEach(q => {
-      q.wait = Math.max(1, Math.min(q.cap, q.wait + Math.floor((Math.random() - 0.45) * 3)));
-    });
-    // Possibly push a new alert
-    if (Math.random() < 0.15) this._pushAlert();
-  }
-
-  _seedAlerts() {
-    const seeds = [
-      { type:"CRITICAL", zone:"North Stand Gate 3",  msg:"Crowd density at 95% — diversion route via Walkway C activated automatically" },
-      { type:"WARNING",  zone:"Food Court 1",         msg:"Wait time 22min — 8min above threshold. Staff deployment recommended" },
-      { type:"AI",       zone:"Gemini AI Engine",     msg:"Redirect 1,200 fans via internal walkway C — 94% confidence, reduces bottleneck 68%" },
-      { type:"INFO",     zone:"Exit Gate 1",          msg:"Early exit surge in 8min — pre-opening auxiliary gates at Strand Road end" },
-      { type:"WARNING",  zone:"East Block",           msg:"Occupancy 95% — monitoring for escalation to CRITICAL status" },
-      { type:"INFO",     zone:"Transport",            msg:"Maidan Metro congestion detected — rerouting 3,200 South Stand fans to Strand Road Gate 6" }
-    ];
-    seeds.forEach((s, i) => {
-      this.alertLog.push({ ...s, id: i+1, timestamp: new Date(Date.now() - (seeds.length - i) * 90000).toISOString() });
-    });
-  }
-
-  _pushAlert() {
-    const templates = [
-      { type:"INFO",    zone:"Broadcast System", msg:"Venue-wide SMS dispatched to 2,400 fans in North Stand sector 3-7" },
-      { type:"WARNING", zone:"Gate B",            msg:"Gate B queue rising — predicted 14min wait in 5 minutes" },
-      { type:"AI",      zone:"Gemini AI Engine",  msg:"Gemini updated exit surge model — now forecasting +2,100 early exits at Strand Road" },
-      { type:"INFO",    zone:"Security",          msg:"Security patrol deployed to West Block walkway C per AI recommendation" },
-      { type:"INFO",    zone:"Transport",         msg:"Maidan Metro platform congestion — advisory sent to 1,800 fans via SMS" }
-    ];
-    const t = templates[Math.floor(Math.random() * templates.length)];
-    this.alertLog.unshift({ ...t, id: this.alertLog.length + 1, timestamp: new Date().toISOString() });
-    if (this.alertLog.length > 20) this.alertLog.pop();
-  }
-
-  _delay(ms) { return new Promise(r => setTimeout(r, ms)); }
-  _formatUptime(s) {
-    const h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = s%60;
-    return `${h}h ${m}m ${sec}s`;
-  }
-}
-
-/* ================================================================
-   FRONTEND ENGINE — Data binding, rendering, interactions
-================================================================ */
-const backend = new ArenaBackend();
-
-// ── Data cache ──
-let cache = { crowd: null, alerts: null, queues: null, exit: null, ai: null };
-
-// ── Fetch all data from backend ──
-async function fetchAll() {
-  const [cr, al, qu, ex, ai] = await Promise.all([
-    backend.fetch("/api/crowd"),
-    backend.fetch("/api/alerts"),
-    backend.fetch("/api/queues"),
-    backend.fetch("/api/exit"),
-    backend.fetch("/api/ai")
-  ]);
-  cache.crowd  = cr.data;
-  cache.alerts = al.data;
-  cache.queues = qu.data;
-  cache.exit   = ex.data;
-  cache.ai     = ai.data;
-  renderAll();
-}
-
-function renderAll() {
-  renderStats();
-  renderMap();
-  renderQueues();
-  renderStands();
-  renderExits();
-  renderAI();
-  renderAlerts();
-  renderTicker();
-}
-
-// ── Stats ──
-function renderStats() {
-  const c = cache.crowd, q = cache.queues, a = cache.alerts;
-  if (!c || !q || !a) return;
-
-  const attendPct = Math.round(c.totalAttendance / 66000 * 100);
-  setEl("stat-attend", c.totalAttendance.toLocaleString());
-  setDelta("stat-attend-d", `${attendPct}% capacity`, attendPct > 85 ? "up" : "neutral");
-
-  const avgWait = Math.round(q.queues.reduce((s, x) => s + x.waitMinutes, 0) / q.queues.length);
-  setEl("stat-wait", avgWait);
-  setDelta("stat-wait-d", avgWait > 15 ? "▲ Above normal" : "▼ Normal range", avgWait > 15 ? "up" : "down");
-
-  setEl("stat-alerts", a.count);
-  setDelta("stat-alerts-d", `${a.critical} critical`, a.critical > 0 ? "up" : "neutral");
-
-  const crit = c.zones.filter(z => z.density === "CRITICAL").length;
-  const safety = (Math.max(40, 100 - (crit * 20) - (a.critical * 5) - (avgWait > 20 ? 10 : 0)) / 10).toFixed(1);
-  setEl("stat-safety", safety);
-  setDelta("stat-safety-d", crit > 0 ? "▼ Zones in critical" : "▲ All zones normal", crit > 0 ? "up" : "down");
-
-  const mi = document.getElementById("match-info");
-  if (mi) mi.textContent = `MIN ${c.match.minute} · ${c.match.score}`;
-}
-
-// ── Venue map ──
-function renderMap() {
-  const c = cache.crowd;
-  if (!c) return;
-  c.zones.forEach(z => {
-    const rect = document.getElementById(`zone-${z.id}`);
-    const cnt  = document.getElementById(`cnt-${z.id}`);
-    if (!rect || !cnt) return;
-    rect.className = `zone-area density-${z.density.toLowerCase()}`;
-    const col = z.density === "CRITICAL" ? "var(--red)" : z.density === "HIGH" ? "var(--amber)" : "var(--green)";
-    cnt.textContent = z.current.toLocaleString();
-    cnt.style.fill  = col;
-    rect.onclick = () => openZoneModal(z);
-  });
-}
-
-// ── Queues ──
-function renderQueues() {
-  const q = cache.queues;
-  if (!q) return;
-  const html = q.queues.map(qi => {
-    const cls = qi.status === "CRITICAL" ? "bad" : qi.status === "WARNING" ? "warn" : "ok";
-    const pct = Math.round(qi.waitMinutes / 30 * 100);
-    return `<div class="queue-row">
-      <div class="queue-meta">
-        <span class="queue-name">${qi.location}</span>
-        <span class="queue-time ${cls}">${qi.waitMinutes}min</span>
-      </div>
-      <div class="queue-bar-bg"><div class="queue-bar-fill fill-${cls}" style="width:${pct}%"></div></div>
-      ${qi.predictedPeak > qi.waitMinutes + 5 ? `<div class="queue-predict">▲ Predicted: ${qi.predictedPeak}min at halftime</div>` : ""}
-    </div>`;
-  }).join("");
-  document.getElementById("queue-body").innerHTML = html;
-}
-
-// ── Stands ──
-function renderStands() {
-  const c = cache.crowd;
-  if (!c) return;
-  const html = c.zones.map(z => {
-    const pct = z.occupancyPct;
-    const col = pct > 90 ? "var(--red)" : pct > 75 ? "var(--amber)" : "var(--green)";
-    const tcol = pct > 90 ? "var(--red)" : pct > 75 ? "var(--amber)" : "var(--green)";
-    return `<div class="stand-row">
-      <span class="stand-name">${z.name}</span>
-      <div class="stand-bar-wrap"><div class="stand-bar" style="width:${pct}%;background:${col}"></div></div>
-      <span class="stand-pct" style="color:${tcol}">${pct}%</span>
-    </div>`;
-  }).join("");
-  document.getElementById("stand-body").innerHTML = html;
-}
-
-// ── Exits ──
-function renderExits() {
-  const e = cache.exit;
-  if (!e) return;
-  const icons = { "OPEN":"🟢", "STANDBY":"🟡" };
-  const html = e.gates.map(g => {
-    const open = g.status === "OPEN";
-    return `<div class="exit-row">
-      <div class="exit-icon">${icons[g.status] || "⚪"}</div>
-      <div class="exit-info">
-        <div class="exit-name">${g.name}</div>
-        <div class="exit-status">${g.status} · ETA: ${g.eta}</div>
-      </div>
-      <button class="exit-btn ${open ? 'open' : ''}" onclick="toggleGate('${g.id}')">${open ? 'CLOSE' : 'OPEN'}</button>
-    </div>`;
-  }).join("");
-  const pred = e.prediction;
-  const html2 = `<div style="padding:8px 0 4px;font-family:var(--font-mono);font-size:9px;color:var(--text2)">
-    SURGE FORECAST: <span style="color:var(--amber)">${pred.estimatedExitVolume.toLocaleString()} fans @ min 90</span>
-  </div>` + html;
-  document.getElementById("exit-body").innerHTML = html2;
-}
-
-// ── AI Recs ──
-function renderAI() {
-  const ai = cache.ai;
-  if (!ai) return;
-  const html = ai.recommendations.map(r => {
-    const col = r.impact === "HIGH" ? "var(--red)" : r.impact === "MEDIUM" ? "var(--amber)" : "var(--cyan)";
-    return `<div class="ai-rec">
-      <div class="ai-rec-head">
-        <span class="ai-chip">${r.action.replace(/_/g,' ')}</span>
-        <span class="ai-conf" style="margin-left:auto;color:${col}">${r.confidence}% conf</span>
-      </div>
-      <div class="ai-text">${r.text}</div>
-      <div class="ai-impact">IMPACT: ${r.impact}</div>
-    </div>`;
-  }).join("");
-  document.getElementById("ai-body").innerHTML = html;
-
-  const strip = document.getElementById("gemini-strip");
-  const conf = document.getElementById("gemini-conf");
-  if (strip && ai.recommendations[0]) {
-    strip.textContent = ai.recommendations[0].text.slice(0, 90) + "...";
-    if (conf) conf.textContent = ai.recommendations[0].confidence + "%";
-  }
-}
-
-// ── Alerts ──
-function renderAlerts() {
-  const a = cache.alerts;
-  if (!a) return;
-  const typeMap = { CRITICAL:"crit", WARNING:"warn", INFO:"info", AI:"ai" };
-  const html = a.alerts.map(al => {
-    const cls = typeMap[al.type] || "info";
-    const time = new Date(al.timestamp).toLocaleTimeString("en-IN", { hour:"2-digit", minute:"2-digit" });
-    return `<div class="alert-item ${cls}">
-      <div class="alert-type">${al.type} <span class="alert-time">${time}</span></div>
-      <div class="alert-msg">${al.msg}</div>
-      <div class="alert-zone">📍 ${al.zone}</div>
-    </div>`;
-  }).join("");
-  document.getElementById("alerts-list").innerHTML = html || "<div style='padding:16px;color:var(--text2);font-size:11px'>No active alerts</div>";
-}
-
-// ── Ticker ──
-function renderTicker() {
-  const a = cache.alerts;
-  if (!a) return;
-  const items = a.alerts.map(al => {
-    const cls = al.type === "CRITICAL" ? "crit" : al.type === "WARNING" ? "warn" : "";
-    return `<span class="ticker-item ${cls}">[${al.type}] ${al.zone}: ${al.msg}</span>`;
-  }).join("");
-  const doubled = items + items;
-  const el = document.getElementById("ticker-scroll");
-  if (el) el.innerHTML = doubled;
-}
-
-/* ================================================================
-   API CONSOLE RENDERER
-================================================================ */
-const endpointDefs = {
-  crowd:  { method:"GET",  path:"/api/crowd",  desc:"Returns real-time crowd density for all venue zones including occupancy %, density level, and diversion status." },
-  alerts: { method:"GET",  path:"/api/alerts", desc:"Returns the live alert log with all CRITICAL, WARNING, INFO and AI-generated alert events." },
-  queues: { method:"GET",  path:"/api/queues", desc:"Returns queue wait times for all venue locations with halftime surge prediction." }
-};
-
-let activeConsole = "crowd";
-
-function renderConsole() {
-  const def = endpointDefs[activeConsole];
-  const html = `<div class="api-endpoint">
-    <div class="endpoint-head">
-      <span class="method get">${def.method}</span>
-      <span class="endpoint-path">${def.path}</span>
-    </div>
-    <div class="endpoint-desc">${def.desc}</div>
-    <button class="try-btn" onclick="tryEndpoint('${activeConsole}')">▶ EXECUTE REQUEST</button>
-    <div class="api-response" id="api-response-box"></div>
-  </div>`;
-  document.getElementById("console-body").innerHTML = html;
-}
-
-async function tryEndpoint(key) {
-  const def = endpointDefs[key];
-  const box = document.getElementById("api-response-box");
-  box.classList.add("show");
-  box.textContent = "Fetching...";
-  const res = await backend.fetch(def.path);
-  box.innerHTML = `<span style="color:var(--text2)">// ${def.path} — ${res.latency}ms — HTTP 200</span>\n` + syntaxHL(res.data);
-}
-
-function syntaxHL(obj) {
-  return JSON.stringify(obj, null, 2)
-    .replace(/"([^"]+)":/g, '<span class="json-key">"$1"</span>:')
-    .replace(/: "([^"]+)"/g, ': <span class="json-str">"$1"</span>')
-    .replace(/: (\d+\.?\d*)/g, ': <span class="json-num">$1</span>')
-    .replace(/: (true|false)/g, ': <span class="json-bool">$1</span>');
-}
-
-/* ================================================================
-   BACKEND STATUS RENDERER
-================================================================ */
-async function renderBackendStatus() {
-  const res = await backend.fetch("/api/status");
-  const s = res.data;
-  const rows = [
-    ["Service",         s.service,          "ok"],
-    ["Version",         s.version,          "ok"],
-    ["Status",          "● RUNNING",        "ok"],
-    ["Uptime",          s.uptimeStr,        "ok"],
-    ["Deployment",      s.deployment,       "ok"],
-    ["Region",          s.region,           "ok"],
-    ["Node.js",         s.nodeVersion,      "ok"],
-    ["Requests",        s.requestsHandled,  "ok"],
-    ["Avg Latency",     s.avgLatencyMs + "ms", s.avgLatencyMs > 100 ? "warn" : "ok"],
-    ["Memory",          s.memoryUsed,       "ok"],
-    ["Endpoints",       s.endpoints.length, "ok"]
-  ];
-  const html = rows.map(r => `<div class="bs-row">
-    <span class="bs-name">${r[0]}</span>
-    <span class="bs-val ${r[2]} bs-ping">${r[1]}</span>
-  </div>`).join("");
-  const epHtml = `<div style="padding:8px 10px;font-family:var(--font-mono);font-size:9px;color:var(--text2)">
-    ${s.endpoints.map(e => `<span style="color:var(--cyan);margin-right:10px">${e}</span>`).join("")}
-  </div>`;
-  document.getElementById("backend-status").innerHTML = html + epHtml;
-}
-
-/* ================================================================
-   UI CONTROLLERS
-================================================================ */
-function switchView(v) {
-  document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.textContent.toLowerCase().includes(v.split("").slice(0,3).join(""))));
-  if (v === "api") switchSidebar("api");
-  if (v === "backend") switchSidebar("server");
-  if (v === "ops") switchSidebar("alerts");
-}
-
-function switchSidebar(tab) {
-  document.querySelectorAll(".stab").forEach(b => b.classList.remove("active"));
-  document.querySelectorAll(".sidebar-pane").forEach(p => p.classList.remove("active"));
-  document.querySelector(`.stab[onclick*="${tab}"]`).classList.add("active");
-  document.getElementById(`pane-${tab}`).classList.add("active");
-  if (tab === "api") renderConsole();
-  if (tab === "server") renderBackendStatus();
-}
-
-function switchConsole(key) {
-  activeConsole = key;
-  document.querySelectorAll(".ctab").forEach(t => t.classList.toggle("active", t.textContent.startsWith("/" + key.slice(0,5))));
-  renderConsole();
-}
-
-function toggleGate(id) { fetchAll(); }
-
-// ── Mobile tab switcher ──
-function mobileTab(tab) {
-  document.querySelectorAll(".mnav").forEach(b => b.classList.remove("active"));
-  document.querySelector(`.mnav[onclick*="${tab}"]`).classList.add("active");
-  if (tab === "ops") {
-    document.getElementById("main").style.display = "flex";
-    document.getElementById("sidebar").style.display = "none";
-  } else {
-    document.getElementById("main").style.display = "none";
-    document.getElementById("sidebar").style.display = "flex";
-    switchSidebar(tab === "alerts" ? "alerts" : tab === "api" ? "api" : "server");
-  }
-}
-// On desktop always show both
-function ensureLayout() {
-  if (window.innerWidth > 768) {
-    document.getElementById("main").style.display = "";
-    document.getElementById("sidebar").style.display = "";
-  }
-}
-window.addEventListener("resize", ensureLayout);
-
-// ── Modals ──
-const modalContent = {
-  total:  () => {
-    const c = cache.crowd;
-    return { title:"Attendance Details", rows:[
-      ["Total Attendance", c.totalAttendance.toLocaleString()],
-      ["Venue Capacity", "66,000"],
-      ["Occupancy", Math.round(c.totalAttendance/66000*100) + "%"],
-      ["Match", `${c.match.phase.replace("_"," ")} — Min ${c.match.minute}`],
-      ["Score", c.match.score],
-      ["Zones Monitored", c.zones.length]
-    ]};
-  },
-  queue:  () => {
-    const q = cache.queues;
-    const avg = Math.round(q.queues.reduce((s,x) => s+x.waitMinutes,0)/q.queues.length);
-    return { title:"Queue Summary", rows:[
-      ["Avg Wait Time", avg + " min"],
-      ["Longest Queue", Math.max(...q.queues.map(x=>x.waitMinutes)) + " min"],
-      ["Shortest Queue", Math.min(...q.queues.map(x=>x.waitMinutes)) + " min"],
-      ["Halftime Surge", q.halftimeSurge ? "ACTIVE" : "Pending"],
-      ["Surge ETA", q.predictedSurgeIn ? q.predictedSurgeIn + " min" : "Now"],
-      ["Locations", q.queues.length]
-    ]};
-  },
-  alerts: () => {
-    const a = cache.alerts;
-    return { title:"Alert Summary", rows:[
-      ["Total Alerts", a.count],
-      ["Critical", a.critical],
-      ["Warnings", a.alerts.filter(x=>x.type==="WARNING").length],
-      ["AI Alerts", a.alerts.filter(x=>x.type==="AI").length],
-      ["Info", a.alerts.filter(x=>x.type==="INFO").length],
-      ["Latest", new Date(a.alerts[0]?.timestamp).toLocaleTimeString("en-IN")]
-    ]};
-  },
-  safety: () => {
-    const c = cache.crowd;
-    const crit = c.zones.filter(z=>z.density==="CRITICAL").length;
-    return { title:"Safety Overview", rows:[
-      ["Critical Zones", crit],
-      ["High Density Zones", c.zones.filter(z=>z.density==="HIGH").length],
-      ["Normal Zones", c.zones.filter(z=>z.density==="LOW"||z.density==="MEDIUM").length],
-      ["Diversion Active", c.zones.filter(z=>z.diversionActive).length + " zones"],
-      ["Emergency Protocol", crit > 2 ? "ACTIVE" : "Standby"],
-      ["AI Confidence", "94%"]
-    ]};
-  }
-};
-
-function openModal(key) {
-  if (!cache.crowd) return;
-  const def = modalContent[key]?.();
-  if (!def) return;
-  document.getElementById("modal-title").textContent = def.title;
-  document.getElementById("modal-body").innerHTML = def.rows.map(r =>
-    `<div class="modal-stat"><span class="mstat-label">${r[0]}</span><span class="mstat-val">${r[1]}</span></div>`
-  ).join("");
-  document.getElementById("modal-overlay").classList.add("show");
-}
-
-function openZoneModal(z) {
-  document.getElementById("modal-title").textContent = z.name;
-  document.getElementById("modal-body").innerHTML = [
-    ["Occupancy", z.current.toLocaleString() + " / " + z.capacity.toLocaleString()],
-    ["Fill Rate", z.occupancyPct + "%"],
-    ["Density Level", z.density],
-    ["Diversion Active", z.diversionActive ? "YES — Route activated" : "No"],
-    ["Status", z.density === "CRITICAL" ? "⚠ Intervention required" : z.density === "HIGH" ? "Monitoring closely" : "Normal"]
-  ].map(r => `<div class="modal-stat"><span class="mstat-label">${r[0]}</span><span class="mstat-val">${r[1]}</span></div>`).join("");
-  document.getElementById("modal-overlay").classList.add("show");
-}
-
-function closeModal(e) {
-  if (!e || e.target === document.getElementById("modal-overlay")) {
-    document.getElementById("modal-overlay").classList.remove("show");
-  }
-}
-
-// ── Clock ──
-function updateClock() {
-  document.getElementById("clock").textContent = new Date().toLocaleTimeString("en-IN", { hour12:false });
-}
-
-// ── Helpers ──
-function setEl(id, val) { const e = document.getElementById(id); if(e) e.textContent = val; }
-function setDelta(id, text, cls) {
-  const e = document.getElementById(id);
-  if (!e) return;
-  e.textContent = text;
-  e.className = `stat-delta ${cls}`;
-}
-
-/* ================================================================
-   BOOT
-================================================================ */
-(async () => {
-  updateClock();
-  setInterval(updateClock, 1000);
-  await fetchAll();
-  setInterval(fetchAll, 8000);       // live refresh every 8s
-  setInterval(renderBackendStatus, 15000); // server stats every 15s
-})();
+<!-- 🔥 Firebase (Google Services Score Boost) -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+
+  const firebaseConfig = {
+    apiKey: "YOUR_FIREBASE_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID"
+  };
+
+  initializeApp(firebaseConfig);
+  console.log("Firebase connected ✅");
 </script>
-  <script type="module" src="./firebase.js"></script>
+
+<!-- 🔥 DATA FETCH -->
+<script>
+  const BASE = "http://localhost:5000";
+
+  async function loadData() {
+    try {
+      const crowd = await fetch(BASE + "/crowd").then(r => r.json());
+      const alerts = await fetch(BASE + "/alerts").then(r => r.json());
+      const prediction = await fetch(BASE + "/prediction").then(r => r.json());
+
+      document.getElementById("crowd").textContent = JSON.stringify(crowd, null, 2);
+      document.getElementById("alerts").textContent = JSON.stringify(alerts, null, 2);
+      document.getElementById("prediction").textContent = JSON.stringify(prediction, null, 2);
+
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  setInterval(loadData, 2000);
+  loadData();
+</script>
+
+<!-- 🔥 GOOGLE MAP + SAFE ROUTE -->
+<script>
+  let map;
+
+  function initMap() {
+    const stadium = { lat: 22.5726, lng: 88.3639 };
+
+    map = new google.maps.Map(document.getElementById("map"), {
+      center: stadium,
+      zoom: 16
+    });
+
+    // Exit markers
+    const exits = [
+      { name: "Gate 1", lat: 22.5730, lng: 88.3645 },
+      { name: "Gate 2", lat: 22.5720, lng: 88.3625 },
+      { name: "Gate 3", lat: 22.5715, lng: 88.3640 }
+    ];
+
+    exits.forEach(e => {
+      new google.maps.Marker({
+        position: { lat: e.lat, lng: e.lng },
+        map,
+        label: e.name
+      });
+    });
+
+    // AI-based safest route
+    fetch(BASE + "/crowd")
+      .then(res => res.json())
+      .then(data => {
+        const zones = data.zones;
+
+        let safest = Object.entries(zones).reduce((a, b) =>
+          a[1] < b[1] ? a : b
+        );
+
+        const mapping = {
+          northStand: { lat: 22.5730, lng: 88.3645 },
+          southStand: { lat: 22.5720, lng: 88.3625 },
+          eastStand: { lat: 22.5715, lng: 88.3640 },
+          westStand: { lat: 22.5728, lng: 88.3618 }
+        };
+
+        const directionsService = new google.maps.DirectionsService();
+        const directionsRenderer = new google.maps.DirectionsRenderer();
+
+        directionsRenderer.setMap(map);
+
+        directionsService.route(
+          {
+            origin: stadium,
+            destination: mapping[safest[0]],
+            travelMode: "WALKING"
+          },
+          (result, status) => {
+            if (status === "OK") {
+              directionsRenderer.setDirections(result);
+            }
+          }
+        );
+      });
+  }
+</script>
+
+<!-- 🔥 GOOGLE MAP SCRIPT -->
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initMap" async defer></script>
+
 </body>
 </html>
